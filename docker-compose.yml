@@ -10,7 +10,7 @@ services:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://stats-db:5432/stats-db
       - POSTGRES_USER=root
       - POSTGRES_PASSWORD=root
-      -
+
     depends_on:
       - stats-db
 
