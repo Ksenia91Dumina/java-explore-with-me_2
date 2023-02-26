@@ -26,7 +26,6 @@ services:
       - POSTGRES_USER=root
       - POSTGRES_PASSWORD=root
 
-
   ewm-service:
     build: main-service
     image: main-service-image
