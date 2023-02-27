@@ -9,9 +9,9 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @Getter
 @Setter
-@Entity
 @Builder
 @ToString
+@Entity(name = "EndpointHit")
 @Table(name = "EndpointHits")
 public class EndpointHit {
     @Id

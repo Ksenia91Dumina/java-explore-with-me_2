@@ -33,4 +33,13 @@ public class StatServiceImpl implements StatService {
         }
     }
 
+    @Override
+    public List<ViewStatsDto> getStats(LocalDateTime start, LocalDateTime end, Boolean unique) {
+        if (unique) {
+            return repository.getUniqueStat(start, end);
+        } else {
+            return repository.getNonUniqueStat(start, end);
+        }
+    }
+
 }
