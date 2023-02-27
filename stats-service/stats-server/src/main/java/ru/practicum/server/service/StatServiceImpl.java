@@ -6,6 +6,7 @@ import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.dto.EndpointHitDto;
 import ru.practicum.dto.ViewStatsDto;
 import ru.practicum.server.mapper.EndpointHitMapper;
+import ru.practicum.server.mapper.ViewStatMapper;
 import ru.practicum.server.model.EndpointHit;
 import ru.practicum.server.repository.StatRepository;
 
@@ -27,18 +28,18 @@ public class StatServiceImpl implements StatService {
     @Override
     public List<ViewStatsDto> getStats(LocalDateTime start, LocalDateTime end, List<String> uris, Boolean unique) {
         if (unique) {
-            return repository.getUniqueStat(start, end, uris);
+            return ViewStatMapper.toViewStatsDtoList(repository.getUniqueStat(start, end, uris));
         } else {
-            return repository.getNonUniqueStat(start, end, uris);
+            return ViewStatMapper.toViewStatsDtoList(repository.getNonUniqueStat(start, end, uris));
         }
     }
 
     @Override
     public List<ViewStatsDto> getStats(LocalDateTime start, LocalDateTime end, Boolean unique) {
         if (unique) {
-            return repository.getUniqueStat(start, end);
+            return ViewStatMapper.toViewStatsDtoList(repository.getUniqueStat(start, end));
         } else {
-            return repository.getNonUniqueStat(start, end);
+            return ViewStatMapper.toViewStatsDtoList(repository.getNonUniqueStat(start, end));
         }
     }
 

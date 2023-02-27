@@ -15,6 +15,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController
+@RequestMapping
 @RequiredArgsConstructor
 @Validated
 @Slf4j

@@ -1,14 +1,16 @@
-package ru.practicum.dto;
+package ru.practicum.server.model;
 
 import lombok.*;
 
 @Getter
 @Setter
-@Builder
 @AllArgsConstructor
-@NoArgsConstructor
-public class ViewStatsDto {
+@Builder
+public class ViewStat {
+
     private String app;
+
     private String uri;
+
     private Long hits;
 }
