@@ -1,28 +1,30 @@
 package ru.practicum.server.mapper;
 
+import lombok.NoArgsConstructor;
 import ru.practicum.dto.EndpointHitDto;
 import ru.practicum.server.model.EndpointHit;
 
+@NoArgsConstructor
 public class EndpointHitMapper {
 
     public static EndpointHitDto toEndpointHitDto(EndpointHit endpointHit) {
-        return EndpointHitDto.builder()
-                .id(endpointHit.getId())
-                .app(endpointHit.getApp())
-                .uri(endpointHit.getUri())
-                .ip(endpointHit.getIp())
-                .timestamp(endpointHit.getTimestamp())
-                .build();
+        EndpointHitDto endpointHitDto = new EndpointHitDto(
+            endpointHit.getId(),
+            endpointHit.getApp(),
+            endpointHit.getUri(),
+            endpointHit.getIp(),
+            endpointHit.getTimestamp());
+        return endpointHitDto;
+
     }
 
     public static EndpointHit toEndpointHit(EndpointHitDto endpointHitDto) {
-        return EndpointHit.builder()
-                .id(endpointHitDto.getId())
-                .app(endpointHitDto.getApp())
-                .uri(endpointHitDto.getUri())
-                .ip(endpointHitDto.getIp())
-                .timestamp(endpointHitDto.getTimestamp())
-                .build();
+        EndpointHit endpointHit = new EndpointHit();
+        endpointHit.setApp(endpointHitDto.getApp());
+        endpointHit.setUri(endpointHitDto.getUri());
+        endpointHit.setIp(endpointHitDto.getIp());
+        endpointHit.setTimestamp(endpointHitDto.getTimestamp());
+        return endpointHit;
     }
 
 
