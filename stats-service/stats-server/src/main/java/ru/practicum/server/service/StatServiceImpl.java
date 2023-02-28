@@ -7,7 +7,6 @@ import ru.practicum.dto.EndpointHitDto;
 import ru.practicum.dto.ViewStatsDto;
 import ru.practicum.server.mapper.EndpointHitMapper;
 import ru.practicum.server.mapper.ViewStatMapper;
-import ru.practicum.server.model.EndpointHit;
 import ru.practicum.server.repository.StatRepository;
 
 import java.time.LocalDateTime;
@@ -20,9 +19,8 @@ public class StatServiceImpl implements StatService {
 
     @Override
     @Transactional
-    public EndpointHitDto addHit(EndpointHitDto endpointHitDto) {
-        EndpointHit endpointHit = repository.save(EndpointHitMapper.toEndpointHit(endpointHitDto));
-        return EndpointHitMapper.toEndpointHitDto(endpointHit);
+    public void addHit(EndpointHitDto endpointHitDto) {
+        repository.save(EndpointHitMapper.toEndpointHit(endpointHitDto));
     }
 
     @Override

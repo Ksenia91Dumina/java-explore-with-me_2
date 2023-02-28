@@ -11,10 +11,10 @@ import java.time.LocalDateTime;
 @Setter
 @ToString
 @Entity(name = "EndpointHit")
-@Table(name = "EndpointHits")
+@Table(name = "endpoint_hits")
 public class EndpointHit {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private long id;
     @Column(name = "app", nullable = false)
     private String app;

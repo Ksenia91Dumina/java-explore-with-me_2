@@ -8,7 +8,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.dto.EndpointHitDto;
 import ru.practicum.dto.ViewStatsDto;
-import ru.practicum.server.service.StatService;
+import ru.practicum.server.service.StatServiceImpl;
 
 import javax.validation.Valid;
 import java.time.LocalDateTime;
@@ -20,13 +20,13 @@ import java.util.List;
 @Validated
 @Slf4j
 public class StatController {
-    private final StatService service;
+    private final StatServiceImpl service;
 
     @PostMapping("/hit")
     @ResponseStatus(HttpStatus.CREATED)
-    public EndpointHitDto addHit(@RequestBody @Valid EndpointHitDto newHitDto) {
+    public void addHit(@RequestBody @Valid EndpointHitDto newHitDto) {
         log.info("POST addHit");
-        return service.addHit(newHitDto);
+        service.addHit(newHitDto);
     }
 
     @GetMapping("/stats")
