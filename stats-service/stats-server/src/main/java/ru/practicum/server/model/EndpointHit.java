@@ -14,7 +14,8 @@ import java.time.LocalDateTime;
 @Table(name = "endpoint_hits")
 public class EndpointHit {
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE)
+    @GeneratedValue(strategy = GenerationType.AUTO, generator = "auto_gen")
+    @SequenceGenerator(name = "auto_gen", sequenceName = "A")
     private long id;
     @Column(name = "app", nullable = false)
     private String app;
