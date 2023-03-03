@@ -8,24 +8,22 @@ import ru.practicum.server.model.EndpointHit;
 public class EndpointHitMapper {
 
     public static EndpointHitDto toEndpointHitDto(EndpointHit endpointHit) {
-        EndpointHitDto endpointHitDto = new EndpointHitDto(
-            endpointHit.getId(),
-            endpointHit.getApp(),
-            endpointHit.getUri(),
-            endpointHit.getIp(),
-            endpointHit.getTimestamp());
-        return endpointHitDto;
-
+        return EndpointHitDto.builder()
+            .id(endpointHit.getId())
+            .app(endpointHit.getApp())
+            .uri(endpointHit.getUri())
+            .ip(endpointHit.getIp())
+            .timestamp(endpointHit.getTimestamp())
+            .build();
     }
 
     public static EndpointHit toEndpointHit(EndpointHitDto endpointHitDto) {
-        EndpointHit endpointHit = new EndpointHit();
-        endpointHit.setApp(endpointHitDto.getApp());
-        endpointHit.setUri(endpointHitDto.getUri());
-        endpointHit.setIp(endpointHitDto.getIp());
-        endpointHit.setTimestamp(endpointHitDto.getTimestamp());
-        return endpointHit;
+        return EndpointHit.builder()
+            .app(endpointHitDto.getApp())
+            .uri(endpointHitDto.getUri())
+            .ip(endpointHitDto.getIp())
+            .timestamp(endpointHitDto.getTimestamp())
+            .build();
     }
-
 
 }

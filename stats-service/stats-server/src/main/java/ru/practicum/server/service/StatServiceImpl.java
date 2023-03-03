@@ -25,19 +25,18 @@ public class StatServiceImpl implements StatService {
 
     @Override
     public List<ViewStatsDto> getStats(LocalDateTime start, LocalDateTime end, List<String> uris, Boolean unique) {
-        if (unique) {
-            return ViewStatMapper.toViewStatsDtoList(repository.getUniqueStat(start, end, uris));
+        if (!uris.isEmpty()) {
+            if (unique) {
+                return ViewStatMapper.toViewStatsDtoList(repository.getUniqueStat(start, end, uris));
+            } else {
+                return ViewStatMapper.toViewStatsDtoList(repository.getNonUniqueStat(start, end, uris));
+            }
         } else {
-            return ViewStatMapper.toViewStatsDtoList(repository.getNonUniqueStat(start, end, uris));
-        }
-    }
-
-    @Override
-    public List<ViewStatsDto> getStats(LocalDateTime start, LocalDateTime end, Boolean unique) {
-        if (unique) {
-            return ViewStatMapper.toViewStatsDtoList(repository.getUniqueStat(start, end));
-        } else {
-            return ViewStatMapper.toViewStatsDtoList(repository.getNonUniqueStat(start, end));
+            if (unique) {
+                return ViewStatMapper.toViewStatsDtoList(repository.getUniqueStat(start, end));
+            } else {
+                return ViewStatMapper.toViewStatsDtoList(repository.getNonUniqueStat(start, end));
+            }
         }
     }
 

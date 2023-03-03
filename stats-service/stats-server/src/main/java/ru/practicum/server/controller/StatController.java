@@ -36,10 +36,6 @@ public class StatController {
         @RequestParam List<String> uris,
         @RequestParam(required = false, defaultValue = "false") Boolean unique) {
         log.info("GET getStat");
-        if (!uris.isEmpty()) {
-            return service.getStats(start, end, uris, unique);
-        } else {
-            return service.getStats(start, end, unique);
-        }
+        return service.getStats(start, end, uris, unique);
     }
 }

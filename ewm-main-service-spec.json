@@ -312,14 +312,14 @@
         ]
       }
     },
-    "/admin/compilations/{compId}": {
+    "/admin/compilations/{id}": {
       "delete": {
         "operationId": "deleteCompilation",
         "parameters": [
           {
             "description": "id подборки",
             "in": "path",
-            "name": "compId",
+            "name": "id",
             "required": true,
             "schema": {
               "type": "integer",
@@ -359,7 +359,7 @@
           {
             "description": "id подборки",
             "in": "path",
-            "name": "compId",
+            "name": "id",
             "required": true,
             "schema": {
               "type": "integer",
@@ -997,7 +997,7 @@
         ]
       }
     },
-    "/compilations/{compId}": {
+    "/compilations/{id}": {
       "get": {
         "description": "В случае, если подборки с заданным id не найдено, возвращает статус код 404",
         "operationId": "getCompilation",
@@ -1005,7 +1005,7 @@
           {
             "description": "id подборки",
             "in": "path",
-            "name": "compId",
+            "name": "id",
             "required": true,
             "schema": {
               "type": "integer",

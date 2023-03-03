@@ -32,7 +32,7 @@ public class StatsClient extends BaseClient {
         parameters.put("end", end);
         parameters.put("unique", unique);
 
-        if (!uris.isEmpty() && uris.size() > 0) {
+        if (!uris.isEmpty()) {
             parameters.put("uris", uris);
         }
         return get("/stats", parameters);

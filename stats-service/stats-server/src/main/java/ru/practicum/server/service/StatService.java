@@ -11,6 +11,4 @@ public interface StatService {
 
     List<ViewStatsDto> getStats(LocalDateTime start, LocalDateTime end, List<String> uris, Boolean unique);
 
-    List<ViewStatsDto> getStats(LocalDateTime start, LocalDateTime end, Boolean unique);
-
 }
