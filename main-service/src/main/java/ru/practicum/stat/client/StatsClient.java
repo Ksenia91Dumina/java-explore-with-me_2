@@ -19,7 +19,7 @@ import java.util.Map;
 public class StatsClient extends BaseClient {
 
     @Autowired
-    public StatsClient(@Value("${stats-server.url}") String serverUrl, RestTemplateBuilder builder) {
+    public StatsClient(@Value("${stats-service.url}") String serverUrl, RestTemplateBuilder builder) {
         super(
             builder
                 .uriTemplateHandler(new DefaultUriBuilderFactory(serverUrl))
@@ -46,4 +46,6 @@ public class StatsClient extends BaseClient {
     private String formatter(LocalDateTime start) {
         return start.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
     }
+
+
 }
