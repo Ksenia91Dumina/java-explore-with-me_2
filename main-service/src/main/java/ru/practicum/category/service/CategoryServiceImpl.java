@@ -1,7 +1,6 @@
 package ru.practicum.category.service;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.addition.MyPageRequest;
@@ -10,6 +9,7 @@ import ru.practicum.category.dto.CategoryDtoNew;
 import ru.practicum.category.mapper.CategoryMapper;
 import ru.practicum.category.model.Category;
 import ru.practicum.category.repository.CategoryRepository;
+import ru.practicum.event.repository.EventRepository;
 import ru.practicum.exception.ConflictException;
 import ru.practicum.exception.NotFoundException;
 
@@ -21,6 +21,7 @@ import java.util.stream.Collectors;
 public class CategoryServiceImpl implements CategoryService {
 
     private final CategoryRepository repository;
+    private final EventRepository eventRepository;
 
     @Override
     @Transactional
@@ -31,9 +32,7 @@ public class CategoryServiceImpl implements CategoryService {
                 throw new ConflictException(
                     String.format("Категория с названием %s уже существует", name));
             });
-        Category categories = CategoryMapper.toCategory(categoryDtoNew);
-        Category categoriesSave = repository.save(categories);
-        return CategoryMapper.toCategoryDtoFull(categoriesSave);
+        return CategoryMapper.toCategoryDtoFull(repository.save(CategoryMapper.toCategory(categoryDtoNew)));
     }
 
     @Override
@@ -45,11 +44,14 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     @Transactional
     public void deleteById(Long id) {
-        try {
+        repository.findById(id)
+            .orElseThrow(() -> new NotFoundException(String.format("Не найдена категория с id = {}, удалить нельзя", id)));
+        if (eventRepository.findAllByCategoryId(id).size() == 0) {
             repository.deleteById(id);
-        } catch (EmptyResultDataAccessException e) {
-            throw new NotFoundException(String.format("Не найдена категория с id = {}, удалить нельзя", id));
+        } else {
+            throw new ConflictException(String.format("Категория с id = {} не пустая", id));
         }
+
     }
 
     @Override
@@ -63,6 +65,9 @@ public class CategoryServiceImpl implements CategoryService {
                 throw new ConflictException(
                     String.format("Категория с названием %s уже существует", name));
             });
+        if(categoryDtoNew.getName().isBlank()){
+            throw new ConflictException("Название не может быть пустым");
+        }
         category.setName(categoryDtoNew.getName());
         return CategoryMapper.toCategoryDtoFull(repository.save(category));
     }

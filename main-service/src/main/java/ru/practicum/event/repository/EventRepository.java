@@ -2,17 +2,25 @@ package ru.practicum.event.repository;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.querydsl.QuerydslPredicateExecutor;
 import ru.practicum.addition.MyPageRequest;
 import ru.practicum.event.model.Event;
 import ru.practicum.event.model.EventState;
 
 import java.util.List;
+import java.util.Optional;
 
-public interface EventRepository extends JpaRepository<Event, Long> {
+public interface EventRepository extends JpaRepository<Event, Long>, JpaSpecificationExecutor<Event>,
+    QuerydslPredicateExecutor<Event> {
     Page<Event> findAllByInitiatorId(Long initiatorId, MyPageRequest pageRequest);
 
     List<Event> findAllByIdIn(List<Long> ids);
+
+    List<Event> findAllByCategoryId(Long id);
+
+    Optional<Event> findByIdAndInitiatorId(Long eventId, Long initiatorId);
 
     @Query("SELECT e FROM Event AS e " +
         "WHERE (e.category.id IN :categories) AND (e.initiator.id IN :users) AND (e.state IN :states)")

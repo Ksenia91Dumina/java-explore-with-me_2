@@ -16,7 +16,7 @@ public class RequestMapper {
             .id(requestDto.getId())
             .event(requestDto.getEvent())
             .requester(requestDto.getRequester())
-            .createdDate(requestDto.getCreatedDate())
+            .createdOn(requestDto.getcreatedOn())
             .status(requestDto.getStatus())
             .build();
     }
@@ -27,7 +27,7 @@ public class RequestMapper {
             .event(request.getEvent())
             .requester(request.getRequester())
             .status(request.getStatus())
-            .createdDate(request.getCreatedDate())
+            .createdOn(request.getcreatedOn())
             .build();
     }
 

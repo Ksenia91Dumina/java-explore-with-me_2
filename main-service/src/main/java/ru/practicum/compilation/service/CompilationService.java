@@ -16,6 +16,6 @@ public interface CompilationService {
 
     CompilationDtoFull updateCompilationById(CompilationDtoUpdated compilationDtoUpdate, Long id);
 
-    List<CompilationDtoFull> getCompilations(Boolean pinned, int from, int size);
+    List<CompilationDtoFull> getAllCompilations(Boolean pinned, int from, int size);
 
 }

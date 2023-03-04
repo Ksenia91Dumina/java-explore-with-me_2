@@ -1,26 +1,25 @@
 package ru.practicum.user.model;
 
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 import javax.persistence.*;
 
-@Entity(name = "User")
+@Entity
 @Table(name = "users")
 @Getter
 @Setter
+@AllArgsConstructor
+@NoArgsConstructor
 @Builder
 public class User {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id")
     private Long id;
 
-    @Column(name = "name", length = 255)
+    @Column(name = "name", nullable = false)
     private String name;
 
-    @Column(name = "email", length = 255, unique = true)
+    @Column(name = "email", nullable = false, unique = true)
     private String email;
 }

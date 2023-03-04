@@ -83,7 +83,7 @@ public class PublicController {
                                                        @RequestParam(name = "from", defaultValue = "0") int from,
                                                        @RequestParam(name = "size", defaultValue = "10") int size) {
         log.info("Получен запрос на получение подборки событий");
-        return compilationService.getCompilations(pinned, from, size);
+        return compilationService.getAllCompilations(pinned, from, size);
     }
 
     @GetMapping("/compilations/{compId}")

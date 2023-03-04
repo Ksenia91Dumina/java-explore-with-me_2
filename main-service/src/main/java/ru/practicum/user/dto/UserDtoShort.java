@@ -1,15 +1,22 @@
 package ru.practicum.user.dto;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
 public class UserDtoShort {
 
-   private Long id;
+    @NotNull
+    private Long id;
 
-   private String name;
+    @NotBlank
+    private String name;
 }

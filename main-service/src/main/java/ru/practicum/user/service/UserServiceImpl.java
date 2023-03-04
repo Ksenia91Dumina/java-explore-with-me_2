@@ -23,6 +23,9 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional
     public UserDto createUser(UserDtoNew userDto) {
+        if(userDto.getName().isBlank()){
+            throw new ConflictException("Имя должно быть заполнено");
+        }
         repository.findByNameOrderByName()
             .stream()
             .filter(name -> name.equals(userDto.getName()))
@@ -30,7 +33,6 @@ public class UserServiceImpl implements UserService {
                 throw new ConflictException(
                     String.format("Пользователь с именем %s - уже существует", name));
             });
-
         return UserMapper.toUserDto(repository.save(UserMapper.toUser(userDto)));
     }
 
@@ -47,7 +49,11 @@ public class UserServiceImpl implements UserService {
     @Override
     public List<UserDto> findAllByIds(List<Long> ids, int from, int size) {
         MyPageRequest pageRequest = MyPageRequest.of(from, size);
-        return UserMapper.toUserDtoList(
-            repository.findAllByIdIn(ids, pageRequest).toList());
+        if (!ids.isEmpty()) {
+            return UserMapper.toUserDtoList(
+                repository.findAllByIdIn(ids, pageRequest).toList());
+        } else {
+            return UserMapper.toUserDtoList(repository.findAll(pageRequest));
+        }
     }
 }

@@ -5,76 +5,66 @@ import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.springframework.format.annotation.DateTimeFormat;
 import ru.practicum.category.model.Category;
+import ru.practicum.event.dto.LocationDto;
 import ru.practicum.user.model.User;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
 
 @Table(name = "events")
-@Entity(name = "Event")
+@Entity
 @Setter
 @Getter
+@AllArgsConstructor
+@NoArgsConstructor
 @Builder
 public class Event {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id", nullable = false)
-    private Long id;
-
-    @Column(name = "annotation", length = 1000)
-    private String annotation;
-
-    @ManyToOne
-    @JoinColumn(name = "category_id")
-    private Category category;
-
-    @Column(name = "confirmed_requests")
+    Long id;
+    @Column(nullable = false)
+    String annotation;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "category_id", nullable = false)
+    Category category;
+    @Column
     Long confirmedRequests;
-
-    @Column(name = "description", length = 7000)
-    private String description;
-
-    @Column(name = "created_date")
+    @Column(name = "createdOn")
     @CreationTimestamp
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss", iso = DateTimeFormat.ISO.DATE_TIME)
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
-    private LocalDateTime createdDate;
-
-    @Column(name = "event_date")
+    LocalDateTime createdOn;
+    @Column
+    String description;
+    @Column(name = "event_date", nullable = false)
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss", iso = DateTimeFormat.ISO.DATE_TIME)
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
-    private LocalDateTime eventDate;
-
-    @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH, CascadeType.DETACH})
-    @JoinColumn(name = "initiator_id")
-    private User initiator;
-
-    @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH, CascadeType.DETACH})
-    @JoinColumn(name = "location_id")
-    private Location location;
-
-    @Column(name = "paid")
-    private Boolean paid;
-
-    @Column(name = "participant_limit")
-    private Long participantLimit;
-
-    @Column(name = "published_date")
+    LocalDateTime eventDate;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "initiator_id", nullable = false)
+    User initiator;
+    @Embedded
+    @AttributeOverrides(value = {
+        @AttributeOverride(name = "lat", column = @Column(name = "lat")),
+        @AttributeOverride(name = "lon", column = @Column(name = "lon"))
+    })
+    LocationDto location;
+    @Column(nullable = false)
+    Boolean paid;
+    @Column
+    Long participantLimit;
+    @Column(name = "publishedOn")
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss", iso = DateTimeFormat.ISO.DATE_TIME)
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
-    private LocalDateTime publishedDate;
-
-    @Column(name = "request_moderation")
-    private Boolean requestModeration;
-
-    @Column(name = "state", length = 255)
+    LocalDateTime publishedOn;
+    @Column
+    Boolean requestModeration;
+    @Column
     @Enumerated(EnumType.STRING)
-    private EventState state;
-
-    @Column(name = "title", length = 120)
-    private String title;
-
-    @Column(name = "views")
-    private Long views;
+    EventState state;
+    @Column(nullable = false)
+    String title;
+    @Column
+    Long views;
 
 }

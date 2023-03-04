@@ -12,6 +12,8 @@ public interface  UserRepository extends JpaRepository<User, Long> {
 
     List<User> findAllByIdIn(List<Long> ids);
 
+    List<User> findAll(MyPageRequest pageRequest);
+
     @Query("select u.name from User u")
     List<String> findByNameOrderByName();
 }

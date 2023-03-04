@@ -39,20 +39,26 @@ public class RequestServiceImpl implements RequestService {
             .orElseThrow(() -> new NotFoundException(String.format("Пользователя с id = {} не существует", userId)));
         Event event = eventRepository.findById(eventId)
             .orElseThrow(() -> new NotFoundException(String.format("События с id = {} не существует", eventId)));
+        if (repository.findByRequesterIdAndEventId(userId, eventId).isPresent()) {
+            throw new ConflictException(String.format("Запрос на событие с id = {} и " +
+                "пользователем с id = {} уже существует", eventId, userId));
+        }
+        if (event.getInitiator().getId().equals(userId)) {
+            throw new NotFoundException("Организатор не может быть участником события");
+        }
+        if (!event.getState().equals(EventState.PUBLISHED)) {
+            throw new NotFoundException("Событие еще не опубликовано");
+        }
+        if ((event.getParticipantLimit() - event.getConfirmedRequests()) <= 0) {
+            throw new NotFoundException("Свободных мест нет");
+        }
         if (!event.getRequestModeration()) {
-            if (event.getInitiator().getId().equals(userId)) {
-                throw new NotFoundException("Организатор не может быть участником события");
-            }
-            if (!event.getState().equals(EventState.PUBLISHED)) {
-                throw new NotFoundException("Событие еще не опубликовано");
-            }
-            if ((event.getParticipantLimit() - event.getConfirmedRequests()) <= 0) {
-                throw new NotFoundException("Свободных мест нет");
-            }
+            event.setConfirmedRequests(event.getConfirmedRequests() + 1);
+            eventRepository.save(event);
         }
 
         RequestDto requestDto = RequestDto.builder()
-            .createdDate(LocalDateTime.now())
+            .createdOn(LocalDateTime.now())
             .event(eventId)
             .requester(userId)
             .status(RequestState.PENDING)
@@ -70,14 +76,17 @@ public class RequestServiceImpl implements RequestService {
 
     @Override
     public List<RequestDto> findRequestsForEventInitiator(Long initiatorId, Long eventId) {
+        eventRepository.findById(eventId).orElseThrow(() -> new NotFoundException(
+            String.format("События с id = {} не существует", eventId)));
+        userRepository.findById(initiatorId).orElseThrow(() -> new NotFoundException(
+            String.format("Пользователя с id = {} не существует", initiatorId)));
         return RequestMapper.toRequestDtoList(repository.findAllByEventId(eventId));
     }
 
     @Override
     @Transactional
     public RequestDto cancelRequest(Long userId, Long requestId) {
-        Request request = repository
-            .findRequestByIdAndRequesterId(requestId, userId)
+        Request request = repository.findByIdAndRequesterId(requestId, userId)
             .orElseThrow(() -> new NotFoundException(String.format("Запроса с id = {} не существует", requestId)));
         if (!userId.equals(request.getRequester())) {
             throw new ConflictException("Отменить запрос может пользователь, создавший его");
@@ -92,7 +101,7 @@ public class RequestServiceImpl implements RequestService {
     @Override
     @Transactional
     public RequestDtoUpdated updateRequestStatusByEventInitiator(
-        Long userId, Long eventId, RequestDtoUpdateStatus participationRequestDtoStatusUpdate) {
+        Long userId, Long eventId, RequestDtoUpdateStatus requestDtoStatusUpdate) {
 
         Event event = eventRepository.findById(eventId).orElseThrow(() -> new NotFoundException(
             String.format("События с id = {} не существует", eventId)));
@@ -100,10 +109,10 @@ public class RequestServiceImpl implements RequestService {
             throw new ConflictException("Не удалось выполнить запрос");
         }
         List<Request> participationRequests = repository.findAllByIdIn(
-            participationRequestDtoStatusUpdate.getRequestIds());
+            requestDtoStatusUpdate.getRequestIds());
         RequestDtoUpdated participationRequestDtoUpdated = new RequestDtoUpdated(
             new ArrayList<>(), new ArrayList<>());
-        if (participationRequestDtoStatusUpdate.getStatus().equals(RequestState.CONFIRMED)) {
+        if (requestDtoStatusUpdate.getStatus().equals(RequestState.CONFIRMED)) {
             if (event.getConfirmedRequests() >= event.getParticipantLimit()) {
                 throw new ConflictException("Невозможно превысить лимит возможных участников");
             }
@@ -125,7 +134,7 @@ public class RequestServiceImpl implements RequestService {
             repository.saveAll(participationRequests);
             eventRepository.save(event);
             return participationRequestDtoUpdated;
-        } else if (participationRequestDtoStatusUpdate.getStatus().equals(RequestState.REJECTED)) {
+        } else if (requestDtoStatusUpdate.getStatus().equals(RequestState.REJECTED)) {
             for (Request participationRequest : participationRequests) {
                 if (!participationRequest.getStatus().equals(RequestState.PENDING)) {
                     throw new ConflictException("Невозможно изменить статус");
