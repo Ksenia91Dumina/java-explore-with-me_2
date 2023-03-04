@@ -23,7 +23,7 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional
     public UserDto createUser(UserDtoNew userDto) {
-        if(userDto.getName().isBlank()){
+        if (userDto.getName().isBlank()) {
             throw new ConflictException("Имя должно быть заполнено");
         }
         repository.findByNameOrderByName()

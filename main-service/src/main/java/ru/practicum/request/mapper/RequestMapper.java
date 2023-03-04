@@ -2,9 +2,7 @@ package ru.practicum.request.mapper;
 
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
-import ru.practicum.event.mapper.EventMapper;
 import ru.practicum.event.model.Event;
-import ru.practicum.event.repository.EventRepository;
 import ru.practicum.request.dto.RequestDto;
 import ru.practicum.request.model.Request;
 import ru.practicum.user.model.User;

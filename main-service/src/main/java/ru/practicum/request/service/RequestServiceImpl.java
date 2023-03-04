@@ -79,9 +79,6 @@ public class RequestServiceImpl implements RequestService {
     public RequestDto cancelRequest(Long userId, Long requestId) {
         Request request = repository.findByIdAndRequesterId(requestId, userId)
             .orElseThrow(() -> new NotFoundException(String.format("Запроса с id = {} не существует", requestId)));
-        if (!userId.equals(request.getRequester())) {
-            throw new ConflictException("Отменить запрос может пользователь, создавший его");
-        }
         if (request.getStatus().equals(RequestState.CANCELED)) {
             throw new ConflictException("Данный запрос уже отменен");
         }

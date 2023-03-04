@@ -10,8 +10,6 @@ import java.util.List;
 public interface  UserRepository extends JpaRepository<User, Long> {
     Page<User> findAllByIdIn(List<Long> ids, MyPageRequest pageRequest);
 
-    List<User> findAllByIdIn(List<Long> ids);
-
     List<User> findAll(MyPageRequest pageRequest);
 
     @Query("select u.name from User u")

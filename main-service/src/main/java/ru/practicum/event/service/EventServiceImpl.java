@@ -1,6 +1,5 @@
 package ru.practicum.event.service;
 
-import com.querydsl.core.types.dsl.BooleanExpression;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -27,8 +26,6 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
 
 import static java.util.stream.Collectors.toList;
 import static ru.practicum.event.model.EventState.*;
@@ -137,38 +134,55 @@ public class EventServiceImpl implements EventService {
     @Override
     public List<EventDtoFull> getAllEventsAdmin(List<Long> users, List<EventState> states, List<Long> categories,
                                                 LocalDateTime rangeStart, LocalDateTime rangeEnd, int from, int size) {
-        QEvent event = QEvent.event;
-        List<BooleanExpression> conditions = new ArrayList<>();
-
-        if (users != null && !users.isEmpty()) {
-            conditions.add(event.initiator.id.in(users));
-        }
-        if (states != null && !states.isEmpty()) {
-            conditions.add(event.state.in(states));
-        }
-        if (categories != null && !categories.isEmpty()) {
-            conditions.add(event.category.id.in(categories));
-        }
+        MyPageRequest pageRequest = MyPageRequest.of(from, size);
+        LocalDateTime start = null;
+        LocalDateTime end = null;
         if (rangeStart != null) {
-            conditions.add(event.eventDate.after(rangeStart));
+            try {
+                start = rangeStart;
+            } catch (NotFoundException e) {
+                throw new NotFoundException("Некорректное время начала диапазона " + rangeStart);
+            }
         }
         if (rangeEnd != null) {
-            conditions.add(event.eventDate.before(rangeEnd));
+            try {
+                end = rangeEnd;
+            } catch (NotFoundException e) {
+                throw new NotFoundException("Некорректное время окончания диапазона " + rangeEnd);
+            }
         }
 
-        List<Event> events;
-        if (conditions.isEmpty()) {
-            events = eventRepository.findAll();
+        start = (rangeStart != null) ? start : LocalDateTime.now();
+        end = (rangeEnd != null) ? end : LocalDateTime.now().plusYears(300);
+
+        if (start.isAfter(end)) {
+            throw new NotFoundException(
+                "Время начала события не может быть позже, чем время окончания");
+        }
+        if (states == null) {
+            states = new ArrayList<>();
+            states.add(EventState.PENDING);
+            states.add(EventState.CANCELED);
+            states.add(EventState.PUBLISHED);
+        }
+        List<Event> events = new ArrayList<>();
+        if (categories != null) {
+            if (users != null) {
+                events = eventRepository.findByInitiatorAndCategoriesAndState(users, categories, states, pageRequest);
+            } else {
+                events = eventRepository.findByCategoriesAndState(categories, states, pageRequest);
+            }
         } else {
-            BooleanExpression expression = conditions.stream()
-                .reduce(BooleanExpression::and)
-                .get();
-
-            events = StreamSupport.stream(eventRepository.findAll(expression).spliterator(), false)
-                .collect(Collectors.toList());
+            if (users == null) {
+                events = eventRepository.findByState(states, pageRequest);
+            } else {
+                events = eventRepository.findByInitiatorAndState(users, states, pageRequest);
+            }
         }
-
-        return EventMapper.toEventDtoFull(events).stream().skip(from).limit(size).collect(Collectors.toList());
+        return events
+            .stream()
+            .map(EventMapper::toEventDtoFull)
+            .collect(toList());
     }
 
     @Override
@@ -267,7 +281,7 @@ public class EventServiceImpl implements EventService {
     private User initiatorValidation(Long userId) {
         User initiator = userRepository.findById(userId)
             .orElseThrow(() -> new NotFoundException(String.format("Пользователь с id ={} не найден", userId)));
-    return initiator;
+        return initiator;
     }
 
     private Category categoryValidation(Long catId) {

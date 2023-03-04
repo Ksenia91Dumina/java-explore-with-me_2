@@ -45,7 +45,8 @@ public class CategoryServiceImpl implements CategoryService {
     @Transactional
     public void deleteById(Long id) {
         repository.findById(id)
-            .orElseThrow(() -> new NotFoundException(String.format("Не найдена категория с id = {}, удалить нельзя", id)));
+            .orElseThrow(
+                () -> new NotFoundException(String.format("Не найдена категория с id = {}, удалить нельзя", id)));
         if (eventRepository.findAllByCategoryId(id).size() == 0) {
             repository.deleteById(id);
         } else {
@@ -65,7 +66,7 @@ public class CategoryServiceImpl implements CategoryService {
                 throw new ConflictException(
                     String.format("Категория с названием %s уже существует", name));
             });
-        if(categoryDtoNew.getName().isBlank()){
+        if (categoryDtoNew.getName().isBlank()) {
             throw new ConflictException("Название не может быть пустым");
         }
         category.setName(categoryDtoNew.getName());
