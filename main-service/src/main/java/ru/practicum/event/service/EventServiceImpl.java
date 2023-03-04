@@ -15,7 +15,6 @@ import ru.practicum.event.model.Event;
 import ru.practicum.event.model.EventState;
 import ru.practicum.event.model.StateAction;
 import ru.practicum.event.repository.EventRepository;
-import ru.practicum.event.repository.LocationRepository;
 import ru.practicum.exception.ConflictException;
 import ru.practicum.exception.NotFoundException;
 import ru.practicum.stat.client.StatsClient;
@@ -52,12 +51,12 @@ public class EventServiceImpl implements EventService {
     @Override
     @Transactional
     public EventDtoFull addEvent(EventDtoNew eventDtoNew, Long userId) {
-        initiatorValidation(userId);
+        User user = initiatorValidation(userId);
         if (eventDtoNew.getAnnotation() == null) {
             throw new ConflictException("Поле annotation должно быть заполнено");
         }
         Event event = EventMapper.toEvent(eventDtoNew);
-        event.setInitiator(userRepository.findById(userId);
+        event.setInitiator(user);
         event.setCategory(categoryRepository.findById(eventDtoNew.getCategory())
             .orElseThrow(() -> new NotFoundException(String.format("Категория с id = {} не найдена",
                 eventDtoNew.getCategory()))));
@@ -138,7 +137,6 @@ public class EventServiceImpl implements EventService {
     @Override
     public List<EventDtoFull> getAllEventsAdmin(List<Long> users, List<EventState> states, List<Long> categories,
                                                 LocalDateTime rangeStart, LocalDateTime rangeEnd, int from, int size) {
-        MyPageRequest pageRequest = MyPageRequest.of(from, size);
         QEvent event = QEvent.event;
         List<BooleanExpression> conditions = new ArrayList<>();
 
@@ -266,9 +264,10 @@ public class EventServiceImpl implements EventService {
         return EventMapper.toEventDtoFull(eventRepository.save(event));
     }
 
-    private void initiatorValidation(Long userId) {
+    private User initiatorValidation(Long userId) {
         User initiator = userRepository.findById(userId)
             .orElseThrow(() -> new NotFoundException(String.format("Пользователь с id ={} не найден", userId)));
+    return initiator;
     }
 
     private Category categoryValidation(Long catId) {
