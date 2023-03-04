@@ -18,7 +18,6 @@ import ru.practicum.request.repository.RequestRepository;
 import ru.practicum.user.model.User;
 import ru.practicum.user.repository.UserRepository;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -56,15 +55,7 @@ public class RequestServiceImpl implements RequestService {
             event.setConfirmedRequests(event.getConfirmedRequests() + 1);
             eventRepository.save(event);
         }
-
-        RequestDto requestDto = RequestDto.builder()
-            .createdOn(LocalDateTime.now())
-            .event(eventId)
-            .requester(userId)
-            .status(RequestState.PENDING)
-            .build();
-
-        return RequestMapper.toRequestDto(repository.save(RequestMapper.toRequest(requestDto)));
+        return RequestMapper.toRequestDto(repository.save(RequestMapper.toRequest(event, requester)));
     }
 
     @Override
