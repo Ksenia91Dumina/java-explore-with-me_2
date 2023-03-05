@@ -34,7 +34,7 @@ public class Request {
     @Enumerated(EnumType.STRING)
     private RequestState status;
 
-    @Column(name = "createdOn")
+    @Column(name = "created")
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss", iso = DateTimeFormat.ISO.DATE_TIME)
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime createdOn;
