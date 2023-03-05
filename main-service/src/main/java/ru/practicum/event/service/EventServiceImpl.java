@@ -91,9 +91,13 @@ public class EventServiceImpl implements EventService {
         initiatorValidation(userId);
         eventRepository.findById(eventId)
             .orElseThrow(() -> new NotFoundException(String.format("Событие с id = {} не найдено", eventId)));
-
+        if (eventDtoUpdateByUser.getEventDate() != null) {
+            LocalDateTime dateTime = EventMapper.toLocalDateTime(eventDtoUpdateByUser.getEventDate());
+            if (dateTime.isBefore(LocalDateTime.now().plusHours(2))) {
+                throw new ConflictException("Введена некорректная дата - должна быть будущая дата");
+            }
+        }
         Event event = getByIdAndInitiatorId(eventId, userId);
-
         if (event.getState().equals(PUBLISHED)) {
             throw new ConflictException("Событие не должно быть опубликовано");
         }

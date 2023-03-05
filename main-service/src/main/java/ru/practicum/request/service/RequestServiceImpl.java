@@ -124,7 +124,7 @@ public class RequestServiceImpl implements RequestService {
         Long potentialParticipants = (long) requestIds.size();
 
         if (participantLimit > 0 && participantLimit.equals(approvedRequests)) {
-            throw new ConflictException(String.format("Event with id=%d has reached participant limit", eventId));
+            throw new ConflictException(String.format("Количество участников превышено", eventId));
         }
 
         if (status.equals(CONFIRMED.toString())) {

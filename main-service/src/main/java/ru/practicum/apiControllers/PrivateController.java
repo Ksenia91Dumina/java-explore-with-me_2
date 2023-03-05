@@ -58,8 +58,7 @@ public class PrivateController {
     @PatchMapping("/events/{eventId}")
     public ResponseEntity<EventDtoFull> updateEventByIdByInitiator(@PathVariable Long userId,
                                                                    @PathVariable Long eventId,
-                                                                   @RequestBody
-                                                                   @Valid EventDtoUpdateByUser eventDtoUpdateByUser) {
+                                                                   @RequestBody EventDtoUpdateByUser eventDtoUpdateByUser) {
         log.info("Получен запрос на обновление события с id {} от пользователя с id {}", eventId, userId);
         return ResponseEntity.ok(eventService.updateEventByIdByInitiator(eventDtoUpdateByUser, userId, eventId));
     }

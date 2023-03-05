@@ -3,7 +3,7 @@ package ru.practicum.user.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ru.practicum.exception.BadRequestException;
+import ru.practicum.exception.ConflictException;
 import ru.practicum.exception.NotFoundException;
 import ru.practicum.user.dto.UserDto;
 import ru.practicum.user.dto.UserDtoNew;
@@ -23,7 +23,7 @@ public class UserServiceImpl implements UserService {
     @Transactional
     public UserDto createUser(UserDtoNew userDto) {
         if (userDto.getName().isBlank()) {
-            throw new BadRequestException("Имя должно быть заполнено");
+            throw new ConflictException("Имя должно быть заполнено");
         }
         return UserMapper.toUserDto(repository.save(UserMapper.toUser(userDto)));
     }
