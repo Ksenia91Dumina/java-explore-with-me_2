@@ -10,6 +10,7 @@ import ru.practicum.category.mapper.CategoryMapper;
 import ru.practicum.category.model.Category;
 import ru.practicum.category.repository.CategoryRepository;
 import ru.practicum.event.repository.EventRepository;
+import ru.practicum.exception.BadRequestException;
 import ru.practicum.exception.ConflictException;
 import ru.practicum.exception.NotFoundException;
 
@@ -67,7 +68,7 @@ public class CategoryServiceImpl implements CategoryService {
                     String.format("Категория с названием %s уже существует", name));
             });
         if (categoryDtoNew.getName().isBlank()) {
-            throw new ConflictException("Название не может быть пустым");
+            throw new BadRequestException("Название не может быть пустым");
         }
         category.setName(categoryDtoNew.getName());
         return CategoryMapper.toCategoryDtoFull(repository.save(category));

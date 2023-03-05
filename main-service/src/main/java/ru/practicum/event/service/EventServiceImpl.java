@@ -14,6 +14,7 @@ import ru.practicum.event.model.Event;
 import ru.practicum.event.model.EventState;
 import ru.practicum.event.model.StateAction;
 import ru.practicum.event.repository.EventRepository;
+import ru.practicum.exception.BadRequestException;
 import ru.practicum.exception.ConflictException;
 import ru.practicum.exception.NotFoundException;
 import ru.practicum.stat.client.StatsClient;
@@ -50,7 +51,7 @@ public class EventServiceImpl implements EventService {
     public EventDtoFull addEvent(EventDtoNew eventDtoNew, Long userId) {
         User user = initiatorValidation(userId);
         if (eventDtoNew.getAnnotation() == null) {
-            throw new ConflictException("Поле annotation должно быть заполнено");
+            throw new BadRequestException("Поле annotation должно быть заполнено");
         }
         Event event = EventMapper.toEvent(eventDtoNew);
         event.setInitiator(user);

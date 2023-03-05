@@ -19,39 +19,27 @@ public class ErrorHandler {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponse handleValidationException(final ValidationException e) {
         log.info("400 {}", e.getMessage(), e);
-        return new ErrorResponse(
-            "400 - BAD_REQUEST",
-            e.getMessage(),
-            ErrorStatus.BAD_REQUEST);
+        return new ErrorResponse(e.getMessage());
     }
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponse handleNotFoundException(final NotFoundException e) {
         log.info("400 {}", e.getMessage(), e);
-        return new ErrorResponse(
-            "400 - BAD_REQUEST",
-            e.getMessage(),
-            ErrorStatus.BAD_REQUEST);
+        return new ErrorResponse(e.getMessage());
     }
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ErrorResponse handleNotFound404Exception(final NotFoundException e) {
         log.info("404 {}", e.getMessage(), e);
-        return new ErrorResponse(
-            "404 - NOT_FOUND",
-            e.getMessage(),
-            ErrorStatus.NOT_FOUND);
+        return new ErrorResponse(e.getMessage());
     }
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.CONFLICT)
     public ErrorResponse handleConflictingRequestException(final ConflictException e) {
         log.info("409 {}", e.getMessage(), e);
-        return new ErrorResponse(
-            "409 - CONFLICT",
-            e.getMessage(),
-            ErrorStatus.CONFLICT);
+        return new ErrorResponse(e.getMessage());
     }
 }
