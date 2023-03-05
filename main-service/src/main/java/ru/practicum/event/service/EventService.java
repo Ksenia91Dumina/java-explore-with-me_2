@@ -12,7 +12,7 @@ public interface EventService {
 
     EventDtoFull findEventByIdForInitiator(Long userId, Long eventId);
 
-    List<EventDtoFull> findAllEventsForInitiator(Long userId, int from, int size);
+    List<EventDtoShort> findAllEventsForInitiator(Long userId, int from, int size);
 
     EventDtoFull updateEventByIdByInitiator(EventDtoUpdateByUser eventDtoUpdateByUser, Long userId, Long eventId);
 

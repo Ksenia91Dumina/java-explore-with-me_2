@@ -3,10 +3,12 @@ package ru.practicum.apiControllers;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.event.dto.EventDtoFull;
 import ru.practicum.event.dto.EventDtoNew;
+import ru.practicum.event.dto.EventDtoShort;
 import ru.practicum.event.dto.EventDtoUpdateByUser;
 import ru.practicum.event.service.EventService;
 import ru.practicum.request.dto.RequestDto;
@@ -30,70 +32,72 @@ public class PrivateController {
     private final RequestService requestService;
 
     @PostMapping("/events")
-    @ResponseStatus(HttpStatus.CREATED)
-    protected EventDtoFull createEvent(@PathVariable Long userId, @RequestBody @Valid EventDtoNew eventDtoNew) {
+    public ResponseEntity<EventDtoFull> createEvent(@PathVariable Long userId,
+                                                    @RequestBody @Valid EventDtoNew eventDtoNew) {
         log.info("Получен запрос на создание события {} от пользователя с id {}", eventDtoNew, userId);
-        return eventService.addEvent(eventDtoNew, userId);
+        return new ResponseEntity<>(eventService.addEvent(eventDtoNew, userId), HttpStatus.CREATED);
     }
 
     @GetMapping("/events/{eventId}")
-    protected EventDtoFull findEventByIdForInitiator(@PathVariable Long userId, @PathVariable Long eventId) {
+    public ResponseEntity<EventDtoFull> findEventByIdForInitiator(@PathVariable Long userId,
+                                                                  @PathVariable Long eventId) {
         log.info("Получен запрос на получение события с id {} от пользователя с id {}", eventId, userId);
-        return eventService.findEventByIdForInitiator(userId, eventId);
+        return new ResponseEntity<>(eventService.findEventByIdForInitiator(userId, eventId), HttpStatus.OK);
     }
 
     @GetMapping("/events")
-    protected List<EventDtoFull> findAllEventsForInitiator(@PathVariable Long userId,
-                                                           @RequestParam(required = false, defaultValue = "0")
-                                                           @PositiveOrZero int from,
-                                                           @RequestParam(required = false, defaultValue = "10")
-                                                           @PositiveOrZero int size) {
+    public ResponseEntity<List<EventDtoShort>> findAllEventsForInitiator(@PathVariable Long userId,
+                                                                         @RequestParam(required = false, defaultValue = "0")
+                                                                         @PositiveOrZero int from,
+                                                                         @RequestParam(required = false, defaultValue = "10")
+                                                                         @PositiveOrZero int size) {
         log.info("Получен запрос на получение списка всех событий для пользователя с id {}", userId);
-        return eventService.findAllEventsForInitiator(userId, from, size);
+        return ResponseEntity.ok(eventService.findAllEventsForInitiator(userId, from, size));
     }
 
     @PatchMapping("/events/{eventId}")
-    protected EventDtoFull updateEventByIdByInitiator(@PathVariable Long userId, @PathVariable Long eventId,
-                                                      @RequestBody @Valid EventDtoUpdateByUser eventDtoUpdateByUser) {
+    public ResponseEntity<EventDtoFull> updateEventByIdByInitiator(@PathVariable Long userId,
+                                                                   @PathVariable Long eventId,
+                                                                   @RequestBody
+                                                                   @Valid EventDtoUpdateByUser eventDtoUpdateByUser) {
         log.info("Получен запрос на обновление события с id {} от пользователя с id {}", eventId, userId);
-        return eventService.updateEventByIdByInitiator(eventDtoUpdateByUser, userId, eventId);
+        return ResponseEntity.ok(eventService.updateEventByIdByInitiator(eventDtoUpdateByUser, userId, eventId));
     }
 
     @PostMapping("/requests")
-    @ResponseStatus(HttpStatus.CREATED)
-    protected RequestDto createRequest(@PathVariable Long userId, @RequestParam Long eventId) {
+    public ResponseEntity<RequestDto> createRequest(@PathVariable Long userId, @RequestParam Long eventId) {
         log.info("Получен запрос на участие в событии с id {} от пользователя с id {}", eventId, userId);
-        return requestService.createRequest(userId, eventId);
+        return new ResponseEntity<>(requestService.createRequest(userId, eventId), HttpStatus.CREATED);
     }
 
     @GetMapping("/requests")
-    protected List<RequestDto> findRequestByUserId(@PathVariable Long userId) {
+    public ResponseEntity<List<RequestDto>> findRequestByUserId(@PathVariable Long userId) {
         log.info("Получен запрос на получение информации о заявках пользователя с id {}", userId);
-        return requestService.findRequestByRequesterId(userId);
+        return ResponseEntity.ok(requestService.findRequestByRequesterId(userId));
     }
 
     @PatchMapping("/requests/{requestId}/cancel")
-    protected RequestDto cancelRequest(@PathVariable Long userId, @PathVariable Long requestId) {
+    public ResponseEntity<RequestDto> cancelRequest(@PathVariable Long userId, @PathVariable Long requestId) {
         log.info("Получен запрос на отмену заявки на участие в событии с id {} от пользователя с id {}", requestId,
             userId);
-        return requestService.cancelRequest(userId, requestId);
+        return ResponseEntity.ok(requestService.cancelRequest(userId, requestId));
     }
 
     @GetMapping("/events/{eventId}/requests")
-    protected List<RequestDto> findRequestsForEventInitiator(
+    public ResponseEntity<List<RequestDto>> findRequestsForEventInitiator(
         @PathVariable Long userId,
         @PathVariable Long eventId) {
         log.info("Получен запрос на получение заявок на участие в событии с id {}", eventId);
-        return requestService.findRequestsForEventInitiator(userId, eventId);
+        return new ResponseEntity<>(requestService.findRequestsForEventInitiator(userId, eventId), HttpStatus.OK);
     }
 
     @PatchMapping("/events/{eventId}/requests")
-    protected RequestDtoUpdated updateRequestStatusByEventInitiator(
+    public ResponseEntity<RequestDtoUpdated> updateRequestStatusByEventInitiator(
         @PathVariable Long userId,
         @PathVariable Long eventId,
         @RequestBody RequestDtoUpdateStatus participationRequestDtoStatusUpdate) {
         log.info("Получен запрос на изменение статуса заявок на участие в событии с id {}", eventId);
-        return requestService.updateRequestStatusByEventInitiator(
-            userId, eventId, participationRequestDtoStatusUpdate);
+        return ResponseEntity.ok(requestService.updateRequestStatusByEventInitiator(
+            userId, eventId, participationRequestDtoStatusUpdate));
     }
 }

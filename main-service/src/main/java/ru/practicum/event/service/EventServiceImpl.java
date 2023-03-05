@@ -72,10 +72,10 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    public List<EventDtoFull> findAllEventsForInitiator(Long userId, int from, int size) {
+    public List<EventDtoShort> findAllEventsForInitiator(Long userId, int from, int size) {
         MyPageRequest pageRequest = MyPageRequest.of(from, size);
         initiatorValidation(userId);
-        return EventMapper.toEventDtoFull(
+        return EventMapper.toEventDtoShort(
             eventRepository.findAllByInitiatorId(userId, pageRequest).toList());
     }
 
@@ -141,15 +141,15 @@ public class EventServiceImpl implements EventService {
         if (rangeStart != null) {
             try {
                 start = rangeStart;
-            } catch (NotFoundException e) {
-                throw new NotFoundException("Некорректное время начала диапазона " + rangeStart);
+            } catch (ConflictException e) {
+                throw new ConflictException("Некорректное время начала диапазона " + rangeStart);
             }
         }
         if (rangeEnd != null) {
             try {
                 end = rangeEnd;
-            } catch (NotFoundException e) {
-                throw new NotFoundException("Некорректное время окончания диапазона " + rangeEnd);
+            } catch (ConflictException e) {
+                throw new ConflictException("Некорректное время окончания диапазона " + rangeEnd);
             }
         }
 
@@ -157,7 +157,7 @@ public class EventServiceImpl implements EventService {
         end = (rangeEnd != null) ? end : LocalDateTime.now().plusYears(300);
 
         if (start.isAfter(end)) {
-            throw new NotFoundException(
+            throw new ConflictException(
                 "Время начала события не может быть позже, чем время окончания");
         }
         if (states == null) {
