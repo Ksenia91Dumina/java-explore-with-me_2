@@ -40,24 +40,29 @@ public class EventServiceImpl implements EventService {
     private final EventRepository eventRepository;
 
     private final UserRepository userRepository;
-
     private final CategoryServiceImpl categoryService;
     private final CategoryRepository categoryRepository;
-
     private final StatsClient statsClient;
 
     @Override
     @Transactional
     public EventDtoFull addEvent(EventDtoNew eventDtoNew, Long userId) {
         User user = initiatorValidation(userId);
+        if (eventDtoNew.getEventDate() != null) {
+            LocalDateTime dateTime = EventMapper.toLocalDateTime(eventDtoNew.getEventDate());
+            if (dateTime.isBefore(LocalDateTime.now().plusHours(2))) {
+                throw new ConflictException("Введена некорректная дата - должна быть будущая дата");
+            }
+        }
         if (eventDtoNew.getAnnotation() == null) {
             throw new BadRequestException("Поле annotation должно быть заполнено");
         }
         Event event = EventMapper.toEvent(eventDtoNew);
-        event.setInitiator(user);
-        event.setCategory(categoryRepository.findById(eventDtoNew.getCategory())
+        Category category = categoryRepository.findById(eventDtoNew.getCategory())
             .orElseThrow(() -> new NotFoundException(String.format("Категория с id = {} не найдена",
-                eventDtoNew.getCategory()))));
+                eventDtoNew.getCategory())));
+        event.setInitiator(user);
+        event.setCategory(category);
         event.setConfirmedRequests(0L);
         event.setViews(0L);
         return EventMapper.toEventDtoFull(eventRepository.save(event));
