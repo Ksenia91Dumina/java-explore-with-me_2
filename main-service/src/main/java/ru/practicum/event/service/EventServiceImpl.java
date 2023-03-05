@@ -8,6 +8,7 @@ import ru.practicum.category.mapper.CategoryMapper;
 import ru.practicum.category.model.Category;
 import ru.practicum.category.repository.CategoryRepository;
 import ru.practicum.category.service.CategoryServiceImpl;
+import ru.practicum.client.StatsClient;
 import ru.practicum.event.dto.*;
 import ru.practicum.event.mapper.EventMapper;
 import ru.practicum.event.model.Event;
@@ -17,8 +18,7 @@ import ru.practicum.event.repository.EventRepository;
 import ru.practicum.exception.BadRequestException;
 import ru.practicum.exception.ConflictException;
 import ru.practicum.exception.NotFoundException;
-import ru.practicum.stat.client.StatsClient;
-import ru.practicum.stat.dto.EndpointHitDto;
+import ru.practicum.stat.StatsEndpointMapper;
 import ru.practicum.user.model.User;
 import ru.practicum.user.repository.UserRepository;
 
@@ -256,7 +256,7 @@ public class EventServiceImpl implements EventService {
     public List<EventDtoShort> getAllEvents(String text, List<Long> categories, Boolean paid, LocalDateTime rangeStart,
                                             LocalDateTime rangeEnd, Boolean onlyAvailable, String sort,
                                             int from, int size, HttpServletRequest request) {
-        saveEndpointHit(request);
+        statsClient.save(StatsEndpointMapper.toEndpointHit(request));
         rangeStart = (rangeStart != null) ? rangeStart : LocalDateTime.now();
         rangeEnd = (rangeEnd != null) ? rangeEnd : LocalDateTime.now().plusYears(300);
         if (rangeStart.isAfter(rangeEnd)) {
@@ -278,7 +278,8 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    public EventDtoFull getEventById(Long id) {
+    public EventDtoFull getEventById(Long id, HttpServletRequest request) {
+        statsClient.save(StatsEndpointMapper.toEndpointHit(request));
         Event event = eventRepository.findById(id)
             .orElseThrow(() -> new NotFoundException(String.format("Событие с id = {} не найдено", id)));
         if (!event.getState().equals(PUBLISHED)) {
@@ -298,15 +299,6 @@ public class EventServiceImpl implements EventService {
         Category category = categoryRepository.findById(catId)
             .orElseThrow(() -> new NotFoundException(String.format("Категория с id ={} не найден", catId)));
         return category;
-    }
-
-    private void saveEndpointHit(HttpServletRequest request) {
-        EndpointHitDto endpointHit = new EndpointHitDto(
-            request.getServerName(),
-            request.getRequestURI(),
-            request.getRemoteAddr(),
-            LocalDateTime.now());
-        statsClient.createStat(endpointHit);
     }
 
     private Event getByIdAndInitiatorId(Long eventId, Long userId) {

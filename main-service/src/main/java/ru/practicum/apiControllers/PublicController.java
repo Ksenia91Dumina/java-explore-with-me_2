@@ -75,9 +75,9 @@ public class PublicController {
 
     @GetMapping("/events/{id}")
     public ResponseEntity<EventDtoFull> findPublicEventById(@PathVariable Long id,
-                                                            HttpServletRequest httpServletRequest) {
+                                                            HttpServletRequest request) {
         log.info("Получен запрос на получение события с id {}", id);
-        return ResponseEntity.ok(eventService.getEventById(id));
+        return ResponseEntity.ok(eventService.getEventById(id, request));
     }
 
     @GetMapping("/compilations")
