@@ -13,6 +13,7 @@ import ru.practicum.user.mapper.UserMapper;
 import ru.practicum.user.repository.UserRepository;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -53,7 +54,8 @@ public class UserServiceImpl implements UserService {
             return UserMapper.toUserDtoList(
                 repository.findAllByIdIn(ids, pageRequest).toList());
         } else {
-            return UserMapper.toUserDtoList(repository.findAll(pageRequest));
+            return UserMapper.toUserDtoList(repository.findAll()
+                .stream().skip(from).limit(size).collect(Collectors.toList()));
         }
     }
 }
