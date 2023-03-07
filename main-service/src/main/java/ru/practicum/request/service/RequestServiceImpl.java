@@ -48,7 +48,7 @@ public class RequestServiceImpl implements RequestService {
         if (event.getInitiator().getId().equals(userId)) {
             throw new ConflictException("Организатор не может быть участником события");
         }
-        if (!event.getState().equals(EventState.PUBLISHED)) {
+        if (!(EventState.PUBLISHED).equals(event.getState())) {
             throw new ConflictException("Событие еще не опубликовано");
         }
         if (event.getParticipantLimit().equals(event.getConfirmedRequests())) {
@@ -82,7 +82,7 @@ public class RequestServiceImpl implements RequestService {
     public RequestDto cancelRequest(Long userId, Long requestId) {
         Request request = repository.findByIdAndRequesterId(requestId, userId)
             .orElseThrow(() -> new NotFoundException(String.format("Запроса с id = {} не существует", requestId)));
-        if (request.getStatus().equals(RequestState.CANCELED)) {
+        if ((RequestState.CANCELED).equals(request.getStatus())) {
             throw new ConflictException("Данный запрос уже отменен");
         }
         request.setStatus(RequestState.CANCELED);
@@ -159,7 +159,7 @@ public class RequestServiceImpl implements RequestService {
     private Request getRequestById(Long requestId) {
         Request request = repository.findById(requestId)
             .orElseThrow(() -> new NotFoundException(String.format("Запрос с id = {} не найден", requestId)));
-        if (!request.getStatus().equals(RequestState.PENDING)) {
+        if (!(RequestState.PENDING).equals(request.getStatus())) {
             throw new ConflictException("Статус запроса должен быть PENDING");
         }
         return request;

@@ -3,7 +3,7 @@ package ru.practicum.category.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ru.practicum.addition.MyPageRequest;
+import ru.practicum.addition.PageRequestOverride;
 import ru.practicum.category.dto.CategoryDtoFull;
 import ru.practicum.category.dto.CategoryDtoNew;
 import ru.practicum.category.mapper.CategoryMapper;
@@ -76,7 +76,7 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     public List<CategoryDtoFull> getAll(int from, int size) {
-        MyPageRequest pageRequest = MyPageRequest.of(from, size);
+        PageRequestOverride pageRequest = PageRequestOverride.of(from, size);
         return repository.findAll(pageRequest)
             .stream()
             .map(CategoryMapper::toCategoryDtoFull)

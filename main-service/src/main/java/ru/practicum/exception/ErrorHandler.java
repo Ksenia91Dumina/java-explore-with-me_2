@@ -5,9 +5,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-import ru.practicum.apiControllers.AdminController;
-import ru.practicum.apiControllers.PrivateController;
-import ru.practicum.apiControllers.PublicController;
+import org.springframework.web.client.HttpServerErrorException;
+import ru.practicum.controllers.AdminController;
+import ru.practicum.controllers.PrivateController;
+import ru.practicum.controllers.PublicController;
 
 
 @Slf4j
@@ -43,5 +44,15 @@ public class ErrorHandler {
             "409 - CONFLICT",
             e.getMessage(),
             ErrorStatus.CONFLICT);
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    public ErrorResponse handleInternalServerError(final HttpServerErrorException.InternalServerError e) {
+        log.info("500 {}", e.getMessage(), e);
+        return new ErrorResponse(
+            "500 - INTERNAL_SERVER_ERROR",
+            e.getMessage(),
+            ErrorStatus.INTERNAL_SERVER_ERROR);
     }
 }

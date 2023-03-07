@@ -1,9 +1,7 @@
-package ru.practicum.apiControllers;
+package ru.practicum.controllers;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -25,6 +23,8 @@ import ru.practicum.user.dto.UserDtoNew;
 import ru.practicum.user.service.UserService;
 
 import javax.validation.Valid;
+import javax.validation.constraints.Positive;
+import javax.validation.constraints.PositiveOrZero;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -59,8 +59,10 @@ public class AdminController {
 
     @GetMapping("/users")
     public ResponseEntity<List<UserDto>> getAllUsers(@RequestParam(name = "ids", required = false) List<Long> ids,
-                                                     @RequestParam(name = "from", defaultValue = "0") int from,
-                                                     @RequestParam(name = "size", defaultValue = "10") int size) {
+                                                     @PositiveOrZero @RequestParam(name = "from", defaultValue = "0")
+                                                     int from,
+                                                     @Positive @RequestParam(name = "size", defaultValue = "10")
+                                                     int size) {
         log.info("Получен запрос на поиск пользователей с id: {}. from = {}, size = {}", ids, from, size);
         return new ResponseEntity<>(userService.findAllByIds(ids, from, size), HttpStatus.OK);
     }
@@ -97,10 +99,9 @@ public class AdminController {
         LocalDateTime rangeStart,
         @RequestParam(name = "rangeEnd", required = false)
         @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime rangeEnd,
-        @RequestParam(name = "from", defaultValue = "0") int from,
-        @RequestParam(name = "size", defaultValue = "10") int size) {
+        @PositiveOrZero @RequestParam(name = "from", defaultValue = "0") int from,
+        @Positive @RequestParam(name = "size", defaultValue = "10") int size) {
         log.info("Получен запрос на поиск событий");
-        Pageable pageable = PageRequest.of(from / size, size);
         return ResponseEntity.ok(eventService.getAllEventsAdmin(
             users, states, categories, rangeStart, rangeEnd, from, size));
     }

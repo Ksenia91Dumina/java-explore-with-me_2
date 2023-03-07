@@ -3,7 +3,7 @@ package ru.practicum.event.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ru.practicum.addition.MyPageRequest;
+import ru.practicum.addition.PageRequestOverride;
 import ru.practicum.category.mapper.CategoryMapper;
 import ru.practicum.category.model.Category;
 import ru.practicum.category.repository.CategoryRepository;
@@ -78,7 +78,7 @@ public class EventServiceImpl implements EventService {
 
     @Override
     public List<EventDtoShort> findAllEventsForInitiator(Long userId, int from, int size) {
-        MyPageRequest pageRequest = MyPageRequest.of(from, size);
+        PageRequestOverride pageRequest = PageRequestOverride.of(from, size);
         initiatorValidation(userId);
         return EventMapper.toEventDtoShort(
             eventRepository.findAllByInitiatorId(userId, pageRequest).toList());
@@ -98,15 +98,15 @@ public class EventServiceImpl implements EventService {
             }
         }
         Event event = getByIdAndInitiatorId(eventId, userId);
-        if (event.getState().equals(PUBLISHED)) {
+        if (PUBLISHED.equals(event.getState())) {
             throw new ConflictException("Событие не должно быть опубликовано");
         }
-        if (!event.getState().equals(PENDING) && !event.getState().equals(CANCELED)) {
+        if ((!PENDING.equals(event.getState())) && (!CANCELED.equals(event.getState()))) {
             throw new ConflictException("Могут быть изменены только события со статусом Pending или Canceled");
         }
-        if (eventDtoUpdateByUser.getStateAction().equals(CANCEL_REVIEW.toString())) {
+        if ((CANCEL_REVIEW.toString()).equals(eventDtoUpdateByUser.getStateAction())) {
             event.setState(CANCELED);
-        } else if (eventDtoUpdateByUser.getStateAction().equals(SEND_TO_REVIEW.toString())) {
+        } else if ((SEND_TO_REVIEW.toString()).equals(eventDtoUpdateByUser.getStateAction())) {
             event.setState(PENDING);
         } else {
             throw new ConflictException("Поле stateAction должно содержать значение CANCEL_REVIEW или SEND_TO_REVIEW");
@@ -144,7 +144,7 @@ public class EventServiceImpl implements EventService {
     @Override
     public List<EventDtoFull> getAllEventsAdmin(List<Long> users, List<EventState> states, List<Long> categories,
                                                 LocalDateTime rangeStart, LocalDateTime rangeEnd, int from, int size) {
-        MyPageRequest pageRequest = MyPageRequest.of(from, size);
+        PageRequestOverride pageRequest = PageRequestOverride.of(from, size);
         LocalDateTime start = null;
         LocalDateTime end = null;
         if (rangeStart != null) {
@@ -207,15 +207,15 @@ public class EventServiceImpl implements EventService {
                 throw new ConflictException("Дата события должна быть не ранее чем за час от даты публикации");
             }
         }
-        if (eventDtoUpdateByAdmin.getStateAction().equals(StateAction.PUBLISH_EVENT.toString())) {
-            if (!event.getState().equals(PENDING)) {
+        if ((StateAction.PUBLISH_EVENT.toString()).equals(eventDtoUpdateByAdmin.getStateAction())) {
+            if (!PENDING.equals(event.getState())) {
                 throw new ConflictException(String.format("Невозможно опубликовать событие - неверно указан статус {}",
                     event.getState()));
             }
             event.setState(PUBLISHED);
         }
-        if (eventDtoUpdateByAdmin.getStateAction().equals(StateAction.REJECT_EVENT.toString())) {
-            if (event.getState().equals(PUBLISHED)) {
+        if ((StateAction.REJECT_EVENT.toString()).equals(eventDtoUpdateByAdmin.getStateAction())) {
+            if (PUBLISHED.equals(event.getState())) {
                 throw new ConflictException(String.format("Невозможно опубликовать событие - неверно указан статус {}",
                     event.getState()));
             }
@@ -290,15 +290,13 @@ public class EventServiceImpl implements EventService {
     }
 
     private User initiatorValidation(Long userId) {
-        User initiator = userRepository.findById(userId)
+        return userRepository.findById(userId)
             .orElseThrow(() -> new NotFoundException(String.format("Пользователь с id ={} не найден", userId)));
-        return initiator;
     }
 
     private Category categoryValidation(Long catId) {
-        Category category = categoryRepository.findById(catId)
+        return categoryRepository.findById(catId)
             .orElseThrow(() -> new NotFoundException(String.format("Категория с id ={} не найден", catId)));
-        return category;
     }
 
     private Event getByIdAndInitiatorId(Long eventId, Long userId) {

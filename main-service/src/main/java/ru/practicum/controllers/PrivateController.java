@@ -1,4 +1,4 @@
-package ru.practicum.apiControllers;
+package ru.practicum.controllers;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -17,6 +17,7 @@ import ru.practicum.request.dto.RequestDtoUpdated;
 import ru.practicum.request.service.RequestService;
 
 import javax.validation.Valid;
+import javax.validation.constraints.Positive;
 import javax.validation.constraints.PositiveOrZero;
 import java.util.List;
 
@@ -50,7 +51,7 @@ public class PrivateController {
                                                                          @RequestParam(required = false, defaultValue = "0")
                                                                          @PositiveOrZero int from,
                                                                          @RequestParam(required = false, defaultValue = "10")
-                                                                         @PositiveOrZero int size) {
+                                                                         @Positive int size) {
         log.info("Получен запрос на получение списка всех событий для пользователя с id {}", userId);
         return ResponseEntity.ok(eventService.findAllEventsForInitiator(userId, from, size));
     }
@@ -58,7 +59,8 @@ public class PrivateController {
     @PatchMapping("/events/{eventId}")
     public ResponseEntity<EventDtoFull> updateEventByIdByInitiator(@PathVariable Long userId,
                                                                    @PathVariable Long eventId,
-                                                                   @RequestBody EventDtoUpdateByUser eventDtoUpdateByUser) {
+                                                                   @RequestBody
+                                                                   EventDtoUpdateByUser eventDtoUpdateByUser) {
         log.info("Получен запрос на обновление события с id {} от пользователя с id {}", eventId, userId);
         return ResponseEntity.ok(eventService.updateEventByIdByInitiator(eventDtoUpdateByUser, userId, eventId));
     }

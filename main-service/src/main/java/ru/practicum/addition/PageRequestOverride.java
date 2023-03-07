@@ -3,17 +3,17 @@ package ru.practicum.addition;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 
-public class MyPageRequest extends PageRequest {
+public class PageRequestOverride extends PageRequest {
 
     private final int from;
 
-    protected MyPageRequest(int from, int size, Sort sort) {
+    protected PageRequestOverride(int from, int size, Sort sort) {
         super(from / size, size, sort);
         this.from = from;
     }
 
-    public static MyPageRequest of(int from, int size) {
-        return new MyPageRequest(from, size, Sort.unsorted());
+    public static PageRequestOverride of(int from, int size) {
+        return new PageRequestOverride(from, size, Sort.unsorted());
     }
 
     @Override

@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ru.practicum.addition.MyPageRequest;
+import ru.practicum.addition.PageRequestOverride;
 import ru.practicum.compilation.dto.CompilationDtoFull;
 import ru.practicum.compilation.dto.CompilationDtoNew;
 import ru.practicum.compilation.dto.CompilationDtoUpdated;
@@ -69,7 +69,7 @@ public class CompilationServiceImpl implements CompilationService {
 
     @Override
     public List<CompilationDtoFull> getAllCompilations(Boolean pinned, int from, int size) {
-        MyPageRequest pageRequest = MyPageRequest.of(from, size);
+        PageRequestOverride pageRequest = PageRequestOverride.of(from, size);
         List<Compilation> compilations;
         if (pinned != null) {
             compilations = repository.findAllByPinned(pinned, pageRequest);

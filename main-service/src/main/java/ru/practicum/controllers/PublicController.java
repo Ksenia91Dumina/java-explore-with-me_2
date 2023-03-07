@@ -1,4 +1,4 @@
-package ru.practicum.apiControllers;
+package ru.practicum.controllers;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -18,6 +18,8 @@ import ru.practicum.event.dto.EventDtoShort;
 import ru.practicum.event.service.EventService;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.validation.constraints.Positive;
+import javax.validation.constraints.PositiveOrZero;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -38,8 +40,8 @@ public class PublicController {
 
     @GetMapping("/categories")
     public ResponseEntity<List<CategoryDtoFull>> getAllCategories(
-        @RequestParam(name = "from", defaultValue = "0") int from,
-        @RequestParam(name = "size", defaultValue = "10") int size) {
+        @PositiveOrZero @RequestParam(name = "from", defaultValue = "0") int from,
+        @Positive @RequestParam(name = "size", defaultValue = "10") int size) {
         log.info("Получен запрос на получение всех категорий");
         return ResponseEntity.ok(categoryService.getAll(from, size));
     }
@@ -64,8 +66,8 @@ public class PublicController {
         LocalDateTime rangeEnd,
         @RequestParam(required = false) Boolean onlyAvailable,
         @RequestParam(required = false) String sort,
-        @RequestParam(name = "from", defaultValue = "0") int from,
-        @RequestParam(name = "size", defaultValue = "10") int size,
+        @PositiveOrZero @RequestParam(name = "from", defaultValue = "0") int from,
+        @Positive @RequestParam(name = "size", defaultValue = "10") int size,
         HttpServletRequest request) {
         log.info("Получен запрос на получение списка событий");
         return ResponseEntity.ok(
@@ -83,8 +85,8 @@ public class PublicController {
     @GetMapping("/compilations")
     public ResponseEntity<List<CompilationDtoFull>> getCompilations(
         @RequestParam(name = "pinned", required = false) Boolean pinned,
-        @RequestParam(name = "from", defaultValue = "0") int from,
-        @RequestParam(name = "size", defaultValue = "10") int size) {
+        @PositiveOrZero @RequestParam(name = "from", defaultValue = "0") int from,
+        @Positive @RequestParam(name = "size", defaultValue = "10") int size) {
         log.info("Получен запрос на получение подборки событий");
         return ResponseEntity.ok(compilationService.getAllCompilations(pinned, from, size));
     }
