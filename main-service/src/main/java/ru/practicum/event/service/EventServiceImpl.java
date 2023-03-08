@@ -13,7 +13,6 @@ import ru.practicum.event.dto.*;
 import ru.practicum.event.mapper.EventMapper;
 import ru.practicum.event.model.Event;
 import ru.practicum.event.model.EventState;
-import ru.practicum.event.model.StateAction;
 import ru.practicum.event.repository.EventRepository;
 import ru.practicum.exception.BadRequestException;
 import ru.practicum.exception.ConflictException;
@@ -30,8 +29,7 @@ import java.util.List;
 
 import static java.util.stream.Collectors.toList;
 import static ru.practicum.event.model.EventState.*;
-import static ru.practicum.event.model.StateAction.CANCEL_REVIEW;
-import static ru.practicum.event.model.StateAction.SEND_TO_REVIEW;
+import static ru.practicum.event.model.StateAction.*;
 
 @Service
 @RequiredArgsConstructor
@@ -104,9 +102,9 @@ public class EventServiceImpl implements EventService {
         if ((!PENDING.equals(event.getState())) && (!CANCELED.equals(event.getState()))) {
             throw new ConflictException("Могут быть изменены только события со статусом Pending или Canceled");
         }
-        if ((CANCEL_REVIEW.toString()).equals(eventDtoUpdateByUser.getStateAction())) {
+        if (CANCEL_REVIEW.equals(eventDtoUpdateByUser.getStateAction())) {
             event.setState(CANCELED);
-        } else if ((SEND_TO_REVIEW.toString()).equals(eventDtoUpdateByUser.getStateAction())) {
+        } else if (SEND_TO_REVIEW.equals(eventDtoUpdateByUser.getStateAction())) {
             event.setState(PENDING);
         } else {
             throw new ConflictException("Поле stateAction должно содержать значение CANCEL_REVIEW или SEND_TO_REVIEW");
@@ -207,14 +205,14 @@ public class EventServiceImpl implements EventService {
                 throw new ConflictException("Дата события должна быть не ранее чем за час от даты публикации");
             }
         }
-        if ((StateAction.PUBLISH_EVENT.toString()).equals(eventDtoUpdateByAdmin.getStateAction())) {
+        if (PUBLISH_EVENT.equals(eventDtoUpdateByAdmin.getStateAction())) {
             if (!PENDING.equals(event.getState())) {
                 throw new ConflictException(String.format("Невозможно опубликовать событие - неверно указан статус {}",
                     event.getState()));
             }
             event.setState(PUBLISHED);
         }
-        if ((StateAction.REJECT_EVENT.toString()).equals(eventDtoUpdateByAdmin.getStateAction())) {
+        if (REJECT_EVENT.equals(eventDtoUpdateByAdmin.getStateAction())) {
             if (PUBLISHED.equals(event.getState())) {
                 throw new ConflictException(String.format("Невозможно опубликовать событие - неверно указан статус {}",
                     event.getState()));
@@ -282,7 +280,7 @@ public class EventServiceImpl implements EventService {
         statsClient.save(StatsEndpointMapper.toEndpointHit(request));
         Event event = eventRepository.findById(id)
             .orElseThrow(() -> new NotFoundException(String.format("Событие с id = {} не найдено", id)));
-        if (!event.getState().equals(PUBLISHED)) {
+        if (!PUBLISHED.equals(event.getState())) {
             throw new ConflictException(String.format("Событие с id = {} не опубликовано", id));
         }
         event.setViews(event.getViews() + 1);

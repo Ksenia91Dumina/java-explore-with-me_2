@@ -11,6 +11,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import ru.practicum.category.dto.CategoryDtoFull;
 import ru.practicum.category.service.CategoryService;
+import ru.practicum.comment.dto.CommentDto;
+import ru.practicum.comment.service.CommentService;
 import ru.practicum.compilation.dto.CompilationDtoFull;
 import ru.practicum.compilation.service.CompilationService;
 import ru.practicum.event.dto.EventDtoFull;
@@ -35,6 +37,8 @@ public class PublicController {
 
 
     private final CompilationService compilationService;
+
+    private final CommentService commentService;
 
     private static final String APP = "ewm-service";
 
@@ -95,5 +99,17 @@ public class PublicController {
     public ResponseEntity<CompilationDtoFull> getPublicCompilationById(@PathVariable Long compId) {
         log.info("Получен запрос на получение подборки событий с id {}", compId);
         return ResponseEntity.ok(compilationService.getCompilationById(compId));
+    }
+
+    @GetMapping("/comments/{eventId}")
+    public ResponseEntity<List<CommentDto>> getALlCommentsByEventId(@PathVariable Long eventId,
+                                                                    @PositiveOrZero
+                                                                    @RequestParam(name = "from", defaultValue = "0")
+                                                                    int from,
+                                                                    @Positive
+                                                                    @RequestParam(name = "size", defaultValue = "10")
+                                                                    int size) {
+        log.info("Получен запрос на получение комментариев к событию с id {}", eventId);
+        return ResponseEntity.ok(commentService.getALlCommentsByEventId(eventId, from, size));
     }
 }

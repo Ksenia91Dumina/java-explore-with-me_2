@@ -6,6 +6,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import ru.practicum.comment.dto.CommentDto;
+import ru.practicum.comment.dto.CommentDtoNew;
+import ru.practicum.comment.service.CommentService;
 import ru.practicum.event.dto.EventDtoFull;
 import ru.practicum.event.dto.EventDtoNew;
 import ru.practicum.event.dto.EventDtoShort;
@@ -31,6 +34,8 @@ public class PrivateController {
     private final EventService eventService;
 
     private final RequestService requestService;
+
+    private final CommentService commentService;
 
     @PostMapping("/events")
     public ResponseEntity<EventDtoFull> createEvent(@PathVariable Long userId,
@@ -101,4 +106,39 @@ public class PrivateController {
         return ResponseEntity.ok(requestService.updateRequestStatusByEventInitiator(
             userId, eventId, participationRequestDtoStatusUpdate));
     }
+
+    @PostMapping("/comments/{eventId}")
+    public ResponseEntity<CommentDto> createComment(@PathVariable Long userId,
+                                                    @PathVariable Long eventId,
+                                                    @RequestBody @Valid CommentDtoNew commentDtoNew) {
+        log.info("Получен запрос на создание комментария от пользователя с id {} к событию с id = {}", userId, eventId);
+        return new ResponseEntity<>(commentService.createComment(eventId, userId, commentDtoNew), HttpStatus.CREATED);
+    }
+
+    @GetMapping("/comments")
+    public ResponseEntity<List<CommentDto>> getAllByAuthorId(@PathVariable Long userId,
+                                                             @PositiveOrZero
+                                                             @RequestParam(name = "from", defaultValue = "0") int from,
+                                                             @Positive @RequestParam(name = "size", defaultValue = "10")
+                                                             int size) {
+        log.info("Запрос на получение всех комментариев от пользователя с id {}", userId);
+        return ResponseEntity.ok(commentService.getCommentsByUserId(userId, from, size));
+    }
+
+    @PatchMapping("/comments/{commentId}")
+    public ResponseEntity<CommentDto> updateComment(@PathVariable Long userId,
+                                                    @PathVariable Long commentId,
+                                                    @RequestBody CommentDto commentDto) {
+        log.info("Получен запрос на изменение комментария с id {} пользователем с id = {}", commentId, userId);
+        return ResponseEntity.ok(commentService.updateComment(commentId, userId, commentDto));
+    }
+
+    @DeleteMapping("/comments/{commentId}")
+    public ResponseEntity<Void> deleteCommentByIdByAuthor(@PathVariable Long userId,
+                                                          @PathVariable Long commentId) {
+        log.info("Получен запрос на удаление комментария с id {} пользователем с id = {}", commentId, userId);
+        commentService.deleteCommentByIdByAuthor(commentId, userId);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+
 }

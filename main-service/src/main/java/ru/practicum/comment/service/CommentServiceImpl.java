@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ru.practicum.addition.MyPageRequest;
+import ru.practicum.addition.PageRequestOverride;
 import ru.practicum.comment.dto.CommentDto;
 import ru.practicum.comment.dto.CommentDtoNew;
 import ru.practicum.comment.mapper.CommentMapper;
@@ -44,7 +44,7 @@ public class CommentServiceImpl implements CommentService {
             Comment comment = CommentMapper.toComment(commentDto);
             comment.setAuthor(user);
             comment.setEvent(event);
-            comment.setCreated(created);
+            comment.setCreatedOn(created);
             return CommentMapper.toCommentDto(repository.save(comment));
         } else {
             throw new ConflictException(
@@ -53,8 +53,8 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
-    public List<CommentDto> getALlComments(Long eventId, int from, int size) {
-        MyPageRequest pageRequest = MyPageRequest.of(from, size);
+    public List<CommentDto> getALlCommentsByEventId(Long eventId, int from, int size) {
+        PageRequestOverride pageRequest = PageRequestOverride.of(from, size);
         eventValidation(eventId);
         return repository.findCommentOrderByEventId(eventId, pageRequest)
             .stream()
@@ -63,10 +63,18 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
+    public CommentDto getCommentById(Long commentId) {
+        Comment comment = repository.findById(commentId)
+            .orElseThrow(() -> new NotFoundException(
+                String.format("Комментарий с id = {} не найден", commentId)));
+        return CommentMapper.toCommentDto(comment);
+    }
+
+    @Override
     public List<CommentDto> getCommentsByUserId(Long userId, int from, int size) {
-        MyPageRequest pageRequest = MyPageRequest.of(from, size);
+        PageRequestOverride pageRequest = PageRequestOverride.of(from, size);
         userValidation(userId);
-        return repository.findCommentOrderByUserId(userId, pageRequest)
+        return repository.findAllByAuthorId(userId, pageRequest)
             .stream()
             .map(CommentMapper::toCommentDto)
             .collect(Collectors.toList());
@@ -74,16 +82,24 @@ public class CommentServiceImpl implements CommentService {
 
     @Override
     @Transactional
-    public void deleteCommentById(Long eventId, Long commentId, Long userId) {
-        Comment comments = repository.findById(commentId)
+    public void deleteCommentByIdByAuthor(Long commentId, Long userId) {
+        Comment comment = repository.findById(commentId)
             .orElseThrow(() -> new NotFoundException(String.format("Комментарий с id = {} не найден", commentId)));
-        if (comments.getAuthor().getId().equals(userId)) {
-            eventValidation(eventId);
+        if (comment.getAuthor().getId().equals(userId)) {
+            eventValidation(comment.getEvent().getId());
             repository.deleteById(commentId);
         } else {
             throw new ConflictException(
                 String.format("Пользователь %s не может удалить чужой комментарий.", userId));
         }
+    }
+
+    @Override
+    @Transactional
+    public void deleteCommentById(Long commentId) {
+        repository.findById(commentId)
+            .orElseThrow(() -> new NotFoundException(String.format("Комментарий с id = {} не найден", commentId)));
+        repository.deleteById(commentId);
     }
 
     @Override
@@ -95,9 +111,9 @@ public class CommentServiceImpl implements CommentService {
 
     @Override
     @Transactional
-    public CommentDto updateComment(Long eventId, Long commentId, Long userId, CommentDto commentDto) {
-        if (commentDto.getAuthor().equals(userId)) {
-            eventValidation(eventId);
+    public CommentDto updateComment(Long commentId, Long userId, CommentDto commentDto) {
+        if (commentDto.getAuthor().getId().equals(userId)) {
+            eventValidation(commentDto.getEvent().getId());
             if (commentDto.getText().isEmpty()) {
                 throw new BadRequestException("Текст комментария не может быть пустым");
             }
@@ -107,7 +123,7 @@ public class CommentServiceImpl implements CommentService {
             return CommentMapper.toCommentDto(repository.save(comment));
         } else {
             throw new ConflictException(
-                String.format("Пользователь %s не может обновить чужой комментарий.", userId));
+                String.format("Пользователь с id = {} не может обновить чужой комментарий.", userId));
         }
     }
 

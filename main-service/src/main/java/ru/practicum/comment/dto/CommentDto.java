@@ -1,7 +1,6 @@
 package ru.practicum.comment.dto;
 
 import lombok.*;
-import lombok.experimental.FieldDefaults;
 import ru.practicum.event.dto.EventDtoShort;
 import ru.practicum.user.dto.UserDto;
 
@@ -14,5 +13,5 @@ public class CommentDto {
     private String text;
     private EventDtoShort event;
     private UserDto author;
-    private String created;
+    private String createdOn;
 }

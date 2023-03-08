@@ -5,6 +5,7 @@ import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.validator.constraints.Length;
+import ru.practicum.event.model.StateAction;
 
 
 @Data
@@ -22,7 +23,7 @@ public class EventDtoUpdateByUser {
     Boolean paid;
     Long participantLimit;
     Boolean requestModeration;
-    String stateAction;
+    StateAction stateAction;
     @Length(min = 3, max = 120)
     String title;
 }

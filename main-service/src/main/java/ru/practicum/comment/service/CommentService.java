@@ -11,12 +11,17 @@ public interface CommentService {
 
     CommentDto createComment(Long eventId, Long userId, CommentDtoNew commentDto);
 
-    List<CommentDto> getALlComments(Long eventId, int from, int size);
+    List<CommentDto> getALlCommentsByEventId(Long eventId, int from, int size);
+
+    CommentDto getCommentById(Long commentId);
 
     List<CommentDto> getCommentsByUserId(Long userId, int from, int size);
 
-    void deleteCommentById(Long eventId, Long commentId, Long userId);
+    void deleteCommentById(Long commentId);
+
+    void deleteCommentByIdByAuthor(Long commentId, Long userId);
+
     void deleteCommentsByEventId(Long eventId);
 
-    CommentDto updateComment(Long eventId, Long commentId, Long userId, CommentDto commentDto);
+    CommentDto updateComment(Long commentId, Long userId, CommentDto commentDto);
 }

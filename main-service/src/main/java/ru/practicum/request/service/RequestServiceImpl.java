@@ -96,7 +96,7 @@ public class RequestServiceImpl implements RequestService {
 
         Event event = eventRepository.findById(eventId).orElseThrow(() -> new NotFoundException(
             String.format("События с id = {} не существует", eventId)));
-        User user = userRepository.findById(userId).orElseThrow(() -> new NotFoundException(
+        userRepository.findById(userId).orElseThrow(() -> new NotFoundException(
             String.format("Пользователя с id = {} не существует", userId)));
 
         List<RequestDto> confirmedRequests = List.of();
@@ -109,7 +109,7 @@ public class RequestServiceImpl implements RequestService {
 
         String status = requestDtoStatusUpdate.getStatus();
 
-        if (status.equals(REJECTED.toString())) {
+        if ((REJECTED.toString()).equals(status)) {
             rejectedRequests = requests.stream()
                 .peek(request -> request.setStatus(REJECTED))
                 .map(repository::save)
@@ -127,7 +127,7 @@ public class RequestServiceImpl implements RequestService {
             throw new ConflictException(String.format("Количество участников превышено", eventId));
         }
 
-        if (status.equals(CONFIRMED.toString())) {
+        if ((CONFIRMED.toString()).equals(status)) {
             if (participantLimit.equals(0L) ||
                 (potentialParticipants <= availableParticipants && !event.getRequestModeration())) {
                 confirmedRequests = requests.stream()

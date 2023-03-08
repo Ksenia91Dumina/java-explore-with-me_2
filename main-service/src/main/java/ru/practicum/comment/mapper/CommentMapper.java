@@ -25,7 +25,7 @@ public final class CommentMapper {
             .text(comment.getText())
             .event(EventMapper.toEventDtoShort(comment.getEvent()))
             .author(UserMapper.toUserDto(comment.getAuthor()))
-            .created(comment.getCreated().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")))
+            .createdOn(comment.getCreatedOn().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")))
             .build();
     }
 
