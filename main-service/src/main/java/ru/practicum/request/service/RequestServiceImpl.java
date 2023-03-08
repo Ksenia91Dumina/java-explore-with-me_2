@@ -4,7 +4,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.event.model.Event;
-import ru.practicum.event.model.EventState;
 import ru.practicum.event.repository.EventRepository;
 import ru.practicum.exception.ConflictException;
 import ru.practicum.exception.NotFoundException;
@@ -13,7 +12,6 @@ import ru.practicum.request.dto.RequestDtoUpdateStatus;
 import ru.practicum.request.dto.RequestDtoUpdated;
 import ru.practicum.request.mapper.RequestMapper;
 import ru.practicum.request.model.Request;
-import ru.practicum.request.model.RequestState;
 import ru.practicum.request.repository.RequestRepository;
 import ru.practicum.user.model.User;
 import ru.practicum.user.repository.UserRepository;
@@ -21,8 +19,8 @@ import ru.practicum.user.repository.UserRepository;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static ru.practicum.request.model.RequestState.CONFIRMED;
-import static ru.practicum.request.model.RequestState.REJECTED;
+import static ru.practicum.event.model.EventState.PUBLISHED;
+import static ru.practicum.request.model.RequestState.*;
 
 
 @Service
@@ -48,7 +46,7 @@ public class RequestServiceImpl implements RequestService {
         if (event.getInitiator().getId().equals(userId)) {
             throw new ConflictException("Организатор не может быть участником события");
         }
-        if (!(EventState.PUBLISHED).equals(event.getState())) {
+        if (!PUBLISHED.equals(event.getState())) {
             throw new ConflictException("Событие еще не опубликовано");
         }
         if (event.getParticipantLimit().equals(event.getConfirmedRequests())) {
@@ -82,10 +80,10 @@ public class RequestServiceImpl implements RequestService {
     public RequestDto cancelRequest(Long userId, Long requestId) {
         Request request = repository.findByIdAndRequesterId(requestId, userId)
             .orElseThrow(() -> new NotFoundException(String.format("Запроса с id = {} не существует", requestId)));
-        if ((RequestState.CANCELED).equals(request.getStatus())) {
+        if (CANCELED.equals(request.getStatus())) {
             throw new ConflictException("Данный запрос уже отменен");
         }
-        request.setStatus(RequestState.CANCELED);
+        request.setStatus(CANCELED);
         return RequestMapper.toRequestDto(repository.save(request));
     }
 
@@ -159,7 +157,7 @@ public class RequestServiceImpl implements RequestService {
     private Request getRequestById(Long requestId) {
         Request request = repository.findById(requestId)
             .orElseThrow(() -> new NotFoundException(String.format("Запрос с id = {} не найден", requestId)));
-        if (!(RequestState.PENDING).equals(request.getStatus())) {
+        if (!PENDING.equals(request.getStatus())) {
             throw new ConflictException("Статус запроса должен быть PENDING");
         }
         return request;

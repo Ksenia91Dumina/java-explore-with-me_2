@@ -122,7 +122,7 @@ public class PrivateController {
                                                              @Positive @RequestParam(name = "size", defaultValue = "10")
                                                              int size) {
         log.info("Запрос на получение всех комментариев от пользователя с id {}", userId);
-        return ResponseEntity.ok(commentService.getCommentsByUserId(userId, from, size));
+        return ResponseEntity.ok(commentService.getCommentsByAuthorId(userId, from, size));
     }
 
     @PatchMapping("/comments/{commentId}")

@@ -40,7 +40,7 @@ public class CommentServiceImpl implements CommentService {
         }
         Event event = eventValidation(eventId);
         User user = userValidation(userId);
-        if (event.getState().equals(EventState.PUBLISHED)) {
+        if ((EventState.PUBLISHED).equals(event.getState())) {
             Comment comment = CommentMapper.toComment(commentDto);
             comment.setAuthor(user);
             comment.setEvent(event);
@@ -71,7 +71,7 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
-    public List<CommentDto> getCommentsByUserId(Long userId, int from, int size) {
+    public List<CommentDto> getCommentsByAuthorId(Long userId, int from, int size) {
         PageRequestOverride pageRequest = PageRequestOverride.of(from, size);
         userValidation(userId);
         return repository.findAllByAuthorId(userId, pageRequest)
