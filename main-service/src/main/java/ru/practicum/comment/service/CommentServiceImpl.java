@@ -52,6 +52,15 @@ public class CommentServiceImpl implements CommentService {
         }
     }
 
+
+    @Override
+    public CommentDto getCommentById(Long commentId) {
+        Comment comment = repository.findById(commentId)
+            .orElseThrow(() -> new NotFoundException(
+                String.format("Комментарий с id = {} не найден", commentId)));
+        return CommentMapper.toCommentDto(comment);
+    }
+
     @Override
     public List<CommentDto> getALlCommentsByEventId(Long eventId, int from, int size) {
         PageRequestOverride pageRequest = PageRequestOverride.of(from, size);
@@ -60,14 +69,6 @@ public class CommentServiceImpl implements CommentService {
             .stream()
             .map(CommentMapper::toCommentDto)
             .collect(Collectors.toList());
-    }
-
-    @Override
-    public CommentDto getCommentById(Long commentId) {
-        Comment comment = repository.findById(commentId)
-            .orElseThrow(() -> new NotFoundException(
-                String.format("Комментарий с id = {} не найден", commentId)));
-        return CommentMapper.toCommentDto(comment);
     }
 
     @Override
