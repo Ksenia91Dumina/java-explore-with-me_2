@@ -60,8 +60,13 @@ public class CategoryServiceImpl implements CategoryService {
     @Transactional
     public CategoryDtoFull updateById(CategoryDtoNew categoryDtoNew, Long id) {
         Category category = repository.findById(id)
-            .orElseThrow(
-                () -> new NotFoundException(String.format("Невозможно обновить - категория с id = {} не найдена", id)));
+            .orElseThrow(() -> new NotFoundException(String.format("Категория с id = {} не найдена", id)));
+        repository.findByNameOrderByName()
+            .stream()
+            .filter(name -> name.equals(categoryDtoNew.getName())).forEachOrdered(name -> {
+                throw new ConflictException(
+                    String.format("Категория с названием %s уже существует", name));
+            });
         if (categoryDtoNew.getName().isBlank()) {
             throw new BadRequestException("Название не может быть пустым");
         }
