@@ -27,7 +27,7 @@ CREATE TABLE IF NOT EXISTS events
     lon                REAL                        NOT NULL,
     paid               BOOL                        NOT NULL,
     participant_limit  BIGINT,
-    published_on       TIMESTAMP WITHOUT TIME ZONE,
+    publishedOn       TIMESTAMP WITHOUT TIME ZONE,
     request_moderation BOOL,
     state              VARCHAR(64),
     title              VARCHAR(120)                NOT NULL,
