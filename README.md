@@ -1,20 +1,3 @@
-# java-explore-with-me
+Ссылка на pull request с веткой feature-comments:
+https://github.com/Ksenia91Dumina/java-explore-with-me_2/pull/5
 
-Сервис для обмена информацией о событиях.
-Программа позволяет:
-1. делиться информацией о событиях (концерты/выставки/походы);
-2. получать информацию о событиях: подборки, поиск.
-
-Программа имеет два сервера: main-service (ewm-service) и stats-server.
-
-Сервис main-sercice включает в себя основную логику приложения.
-
-Сервис stats-service хранит количество просмотров и позволяет делать различные выборки для анализа работы приложения. 
-
-Взаимодействие сервисов реализовано с помощью Stats-Client - наследуемый от BaseClient. 
-
-Данные о портах для запуска docker-compose.yml:
-ewm-service: ports - 8080:8080
-stats-db: ports - 6541:5432
-stats-server: ports - 9090:9090
-ewm-db: ports - 6542:5432
