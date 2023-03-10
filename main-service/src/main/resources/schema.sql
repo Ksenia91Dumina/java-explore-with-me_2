@@ -19,7 +19,7 @@ CREATE TABLE IF NOT EXISTS events
     annotation         VARCHAR(2000)               NOT NULL,
     category_id        BIGINT                      NOT NULL REFERENCES categories ON DELETE CASCADE,
     confirmed_requests BIGINT,
-    created_on         TIMESTAMP WITHOUT TIME ZONE,
+    createdOn          TIMESTAMP WITHOUT TIME ZONE,
     description        VARCHAR(7000),
     event_date         TIMESTAMP WITHOUT TIME ZONE NOT NULL,
     initiator_id       BIGINT                      NOT NULL REFERENCES users ON DELETE CASCADE,
