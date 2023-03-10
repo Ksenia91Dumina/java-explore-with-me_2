@@ -19,7 +19,7 @@ CREATE TABLE IF NOT EXISTS events
     annotation         VARCHAR(2000)               NOT NULL,
     category_id        BIGINT                      NOT NULL REFERENCES categories ON DELETE CASCADE,
     confirmed_requests BIGINT,
-    createdOn          TIMESTAMP WITHOUT TIME ZONE,
+    created_on          TIMESTAMP WITHOUT TIME ZONE,
     description        VARCHAR(7000),
     event_date         TIMESTAMP WITHOUT TIME ZONE NOT NULL,
     initiator_id       BIGINT                      NOT NULL REFERENCES users ON DELETE CASCADE,
@@ -27,7 +27,7 @@ CREATE TABLE IF NOT EXISTS events
     lon                REAL                        NOT NULL,
     paid               BOOL                        NOT NULL,
     participant_limit  BIGINT,
-    publishedOn       TIMESTAMP WITHOUT TIME ZONE,
+    published_on       TIMESTAMP WITHOUT TIME ZONE,
     request_moderation BOOL,
     state              VARCHAR(64),
     title              VARCHAR(120)                NOT NULL,
@@ -64,5 +64,5 @@ CREATE TABLE IF NOT EXISTS comments
     text VARCHAR(3000) NOT NULL,
     author_id BIGINT  NOT NULL REFERENCES users (id) ON DELETE CASCADE,
     event_id  BIGINT  NOT NULL REFERENCES events (id) ON DELETE CASCADE,
-    createdOn TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT  now()
+    created_on TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT  now()
     );
