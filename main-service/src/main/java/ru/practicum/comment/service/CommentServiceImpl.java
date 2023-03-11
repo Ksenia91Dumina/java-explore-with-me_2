@@ -55,9 +55,7 @@ public class CommentServiceImpl implements CommentService {
 
     @Override
     public CommentDto getCommentById(Long commentId) {
-        Comment comment = repository.findById(commentId)
-            .orElseThrow(() -> new NotFoundException(
-                String.format("Комментарий с id = {} не найден", commentId)));
+        Comment comment = commentValidation(commentId);
         return CommentMapper.toCommentDto(comment);
     }
 
@@ -84,10 +82,9 @@ public class CommentServiceImpl implements CommentService {
     @Override
     @Transactional
     public void deleteCommentByIdByAuthor(Long commentId, Long userId) {
-        Comment comment = repository.findById(commentId)
-            .orElseThrow(() -> new NotFoundException(String.format("Комментарий с id = {} не найден", commentId)));
-        if (comment.getAuthor().getId().equals(userId)) {
-            eventValidation(comment.getEvent().getId());
+        Comment comment = commentValidation(commentId);
+        User user = userValidation(userId);
+        if (user.equals(comment.getAuthor())) {
             repository.deleteById(commentId);
         } else {
             throw new ConflictException(
@@ -98,8 +95,7 @@ public class CommentServiceImpl implements CommentService {
     @Override
     @Transactional
     public void deleteCommentById(Long commentId) {
-        repository.findById(commentId)
-            .orElseThrow(() -> new NotFoundException(String.format("Комментарий с id = {} не найден", commentId)));
+        commentValidation(commentId);
         repository.deleteById(commentId);
     }
 
@@ -113,10 +109,8 @@ public class CommentServiceImpl implements CommentService {
     @Override
     @Transactional
     public CommentDto updateComment(Long commentId, Long userId, CommentDto commentDto) {
-        Comment comment = repository.findById(commentId)
-            .orElseThrow(() -> new NotFoundException(String.format("Комментарий с id = {} не найден", commentId)));
+        Comment comment = commentValidation(commentId);
         User user = userValidation(userId);
-        eventValidation(commentDto.getEvent().getId());
         if (user.equals(comment.getAuthor())) {
             if (commentDto.getText().isEmpty()) {
                 throw new BadRequestException("Текст комментария не может быть пустым");
@@ -125,7 +119,7 @@ public class CommentServiceImpl implements CommentService {
             return CommentMapper.toCommentDto(repository.save(comment));
         } else {
             throw new ConflictException(
-                String.format("Пользователь с id = {} не может обновить чужой комментарий.", userId));
+                String.format("Пользователь с id = {} не может обновить чужой комментарий", userId));
         }
     }
 
@@ -137,6 +131,11 @@ public class CommentServiceImpl implements CommentService {
     private User userValidation(Long userId) {
         return userRepository.findById(userId)
             .orElseThrow(() -> new NotFoundException(String.format("Пользователь с id = {} не найден", userId)));
+    }
+
+    private Comment commentValidation(Long commentId) {
+        return repository.findById(commentId)
+            .orElseThrow(() -> new NotFoundException(String.format("Комментарий с id = {} не найден", commentId)));
     }
 
 }
