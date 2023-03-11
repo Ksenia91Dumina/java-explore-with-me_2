@@ -113,13 +113,14 @@ public class CommentServiceImpl implements CommentService {
     @Override
     @Transactional
     public CommentDto updateComment(Long commentId, Long userId, CommentDto commentDto) {
-        if (userId.equals(commentDto.getAuthor().getId())) {
-            eventValidation(commentDto.getEvent().getId());
+        Comment comment = repository.findById(commentId)
+            .orElseThrow(() -> new NotFoundException(String.format("Комментарий с id = {} не найден", commentId)));
+        User user = userValidation(userId);
+        eventValidation(commentDto.getEvent().getId());
+        if (user.equals(comment.getAuthor())) {
             if (commentDto.getText().isEmpty()) {
                 throw new BadRequestException("Текст комментария не может быть пустым");
             }
-            Comment comment = repository.findById(commentId)
-                .orElseThrow(() -> new NotFoundException(String.format("Комментарий с id = {} не найден", commentId)));
             comment.setText(commentDto.getText());
             return CommentMapper.toCommentDto(repository.save(comment));
         } else {
