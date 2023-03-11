@@ -523,7 +523,7 @@
         "header": [],
         "body": {
           "mode": "raw",
-          "raw": "{\r\n    \"text\": \"В стекло не попади!\"\r\n}",
+          "raw": "{\r\n    \"text\": \"Как здорово!... Это должно быть интересно!)) Надо сходить))!\"\r\n}",
           "options": {
             "raw": {
               "language": "json"
@@ -562,8 +562,8 @@
           "listen": "test",
           "script": {
             "exec": [
-              "pm.test(\"Status code is 404\", function () {\r",
-              "    pm.expect(pm.response.code).to.be.oneOf([404]);\r",
+              "pm.test(\"Status code is 400\", function () {\r",
+              "    pm.expect(pm.response.code).to.be.oneOf([400]);\r",
               "});"
             ],
             "type": "text/javascript"
