@@ -47,6 +47,46 @@
       "response": []
     },
     {
+      "name": "User create 2",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 201\", function () {\r",
+              "    pm.expect(pm.response.code).to.be.oneOf([201]);\r",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"name\": \"Двойник\",\r\n    \"email\": \"double@mail.ru\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/admin/users",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "admin",
+            "users"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
       "name": "Category create 1",
       "event": [
         {
@@ -238,58 +278,6 @@
       "response": []
     },
     {
-      "name": "Comment create 3",
-      "event": [
-        {
-          "listen": "test",
-          "script": {
-            "exec": [
-              "pm.test(\"Status code is 201\", function () {\r",
-              "    pm.expect(pm.response.code).to.be.oneOf([201]);\r",
-              "});"
-            ],
-            "type": "text/javascript"
-          }
-        }
-      ],
-      "request": {
-        "method": "POST",
-        "header": [],
-        "body": {
-          "mode": "raw",
-          "raw": "{\r\n    \"text\": \"А я не любитель танцев... Мне больше нравится классические постановки.\"\r\n}",
-          "options": {
-            "raw": {
-              "language": "json"
-            }
-          }
-        },
-        "url": {
-          "raw": "{{baseUrl}}/users/:userId/comments/:eventId",
-          "host": [
-            "{{baseUrl}}"
-          ],
-          "path": [
-            "users",
-            ":userId",
-            "comments",
-            ":eventId"
-          ],
-          "variable": [
-            {
-              "key": "userId",
-              "value": "1"
-            },
-            {
-              "key": "eventId",
-              "value": "1"
-            }
-          ]
-        }
-      },
-      "response": []
-    },
-    {
       "name": "Comment create with empty text",
       "event": [
         {
@@ -362,58 +350,6 @@
       "response": []
     },
     {
-      "name": "Comment create 4",
-      "event": [
-        {
-          "listen": "test",
-          "script": {
-            "exec": [
-              "pm.test(\"Status code is 201\", function () {\r",
-              "    pm.expect(pm.response.code).to.be.oneOf([201]);\r",
-              "});"
-            ],
-            "type": "text/javascript"
-          }
-        }
-      ],
-      "request": {
-        "method": "POST",
-        "header": [],
-        "body": {
-          "mode": "raw",
-          "raw": "{\r\n    \"text\": \"А я занимаюсь танго уже 2 года, обязательно схожу!\"\r\n}",
-          "options": {
-            "raw": {
-              "language": "json"
-            }
-          }
-        },
-        "url": {
-          "raw": "{{baseUrl}}/users/:userId/comments/:eventId",
-          "host": [
-            "{{baseUrl}}"
-          ],
-          "path": [
-            "users",
-            ":userId",
-            "comments",
-            ":eventId"
-          ],
-          "variable": [
-            {
-              "key": "userId",
-              "value": "1"
-            },
-            {
-              "key": "eventId",
-              "value": "1"
-            }
-          ]
-        }
-      },
-      "response": []
-    },
-    {
       "name": "Comment get 1",
       "event": [
         {
@@ -452,7 +388,7 @@
       "response": []
     },
     {
-      "name": "Update comment 1",
+      "name": "Comment update 1",
       "event": [
         {
           "listen": "test",
@@ -504,7 +440,7 @@
       "response": []
     },
     {
-      "name": "Update comment wrong id",
+      "name": "Comment update wrong id",
       "event": [
         {
           "listen": "test",
@@ -562,8 +498,8 @@
           "listen": "test",
           "script": {
             "exec": [
-              "pm.test(\"Status code is 400\", function () {\r",
-              "    pm.expect(pm.response.code).to.be.oneOf([400]);\r",
+              "pm.test(\"Status code is 409\", function () {\r",
+              "    pm.expect(pm.response.code).to.be.oneOf([409]);\r",
               "});"
             ],
             "type": "text/javascript"
@@ -741,82 +677,6 @@
             "{{baseUrl}}"
           ],
           "path": [
-            "comments",
-            ":eventId"
-          ],
-          "variable": [
-            {
-              "key": "eventId",
-              "value": "1"
-            }
-          ]
-        }
-      },
-      "response": []
-    },
-    {
-      "name": "Comment admin delete 3",
-      "event": [
-        {
-          "listen": "test",
-          "script": {
-            "exec": [
-              "pm.test(\"Status code is 204\", function () {\r",
-              "    pm.expect(pm.response.code).to.be.oneOf([204]);\r",
-              "});"
-            ],
-            "type": "text/javascript"
-          }
-        }
-      ],
-      "request": {
-        "method": "DELETE",
-        "header": [],
-        "url": {
-          "raw": "{{baseUrl}}/admin/comments/:commentId",
-          "host": [
-            "{{baseUrl}}"
-          ],
-          "path": [
-            "admin",
-            "comments",
-            ":commentId"
-          ],
-          "variable": [
-            {
-              "key": "commentId",
-              "value": "3"
-            }
-          ]
-        }
-      },
-      "response": []
-    },
-    {
-      "name": "Comment admin delete 4",
-      "event": [
-        {
-          "listen": "test",
-          "script": {
-            "exec": [
-              "pm.test(\"Status code is 204\", function () {\r",
-              "    pm.expect(pm.response.code).to.be.oneOf([204]);\r",
-              "});"
-            ],
-            "type": "text/javascript"
-          }
-        }
-      ],
-      "request": {
-        "method": "DELETE",
-        "header": [],
-        "url": {
-          "raw": "{{baseUrl}}/admin/comments/:eventId",
-          "host": [
-            "{{baseUrl}}"
-          ],
-          "path": [
-            "admin",
             "comments",
             ":eventId"
           ],
