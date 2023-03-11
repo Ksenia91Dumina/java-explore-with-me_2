@@ -36,12 +36,12 @@ public class RequestServiceImpl implements RequestService {
     @Transactional
     public RequestDto createRequest(Long userId, Long eventId) {
         User requester = userRepository.findById(userId)
-            .orElseThrow(() -> new NotFoundException(String.format("Пользователя с id = {} не существует", userId)));
+            .orElseThrow(() -> new NotFoundException(String.format("Пользователя с id = %s не существует", userId)));
         Event event = eventRepository.findById(eventId)
-            .orElseThrow(() -> new NotFoundException(String.format("События с id = {} не существует", eventId)));
+            .orElseThrow(() -> new NotFoundException(String.format("События с id = %s не существует", eventId)));
         if (repository.findByRequesterIdAndEventId(userId, eventId).isPresent()) {
-            throw new ConflictException(String.format("Запрос на событие с id = {} и " +
-                "пользователем с id = {} уже существует", eventId, userId));
+            throw new ConflictException(String.format("Запрос на событие с id = %s и " +
+                "пользователем с id = %s уже существует", eventId, userId));
         }
         if (event.getInitiator().getId().equals(userId)) {
             throw new ConflictException("Организатор не может быть участником события");
@@ -62,16 +62,16 @@ public class RequestServiceImpl implements RequestService {
     @Override
     public List<RequestDto> findRequestByRequesterId(Long userId) {
         userRepository.findById(userId)
-            .orElseThrow(() -> new NotFoundException(String.format("Пользователя с id = {} не существует", userId)));
+            .orElseThrow(() -> new NotFoundException(String.format("Пользователя с id = %s не существует", userId)));
         return RequestMapper.toRequestDtoList(repository.findAllByRequesterId(userId));
     }
 
     @Override
     public List<RequestDto> findRequestsForEventInitiator(Long initiatorId, Long eventId) {
         eventRepository.findById(eventId).orElseThrow(() -> new NotFoundException(
-            String.format("События с id = {} не существует", eventId)));
+            String.format("События с id = %s не существует", eventId)));
         userRepository.findById(initiatorId).orElseThrow(() -> new NotFoundException(
-            String.format("Пользователя с id = {} не существует", initiatorId)));
+            String.format("Пользователя с id = %s не существует", initiatorId)));
         return RequestMapper.toRequestDtoList(repository.findAllByEventId(eventId));
     }
 
@@ -79,7 +79,7 @@ public class RequestServiceImpl implements RequestService {
     @Transactional
     public RequestDto cancelRequest(Long userId, Long requestId) {
         Request request = repository.findByIdAndRequesterId(requestId, userId)
-            .orElseThrow(() -> new NotFoundException(String.format("Запроса с id = {} не существует", requestId)));
+            .orElseThrow(() -> new NotFoundException(String.format("Запроса с id = %s не существует", requestId)));
         if (CANCELED.equals(request.getStatus())) {
             throw new ConflictException("Данный запрос уже отменен");
         }
@@ -93,9 +93,9 @@ public class RequestServiceImpl implements RequestService {
         Long userId, Long eventId, RequestDtoUpdateStatus requestDtoStatusUpdate) {
 
         Event event = eventRepository.findById(eventId).orElseThrow(() -> new NotFoundException(
-            String.format("События с id = {} не существует", eventId)));
+            String.format("События с id = %s не существует", eventId)));
         userRepository.findById(userId).orElseThrow(() -> new NotFoundException(
-            String.format("Пользователя с id = {} не существует", userId)));
+            String.format("Пользователя с id = %s не существует", userId)));
 
         List<RequestDto> confirmedRequests = List.of();
         List<RequestDto> rejectedRequests = List.of();
@@ -156,7 +156,7 @@ public class RequestServiceImpl implements RequestService {
 
     private Request getRequestById(Long requestId) {
         Request request = repository.findById(requestId)
-            .orElseThrow(() -> new NotFoundException(String.format("Запрос с id = {} не найден", requestId)));
+            .orElseThrow(() -> new NotFoundException(String.format("Запрос с id = %s не найден", requestId)));
         if (!PENDING.equals(request.getStatus())) {
             throw new ConflictException("Статус запроса должен быть PENDING");
         }

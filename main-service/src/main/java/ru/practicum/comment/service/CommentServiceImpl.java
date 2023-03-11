@@ -119,23 +119,23 @@ public class CommentServiceImpl implements CommentService {
             return CommentMapper.toCommentDto(repository.save(comment));
         } else {
             throw new ConflictException(
-                String.format("Пользователь с id = {} не может обновить чужой комментарий", userId));
+                String.format("Пользователь с id = %s не может обновить чужой комментарий", userId));
         }
     }
 
     private Event eventValidation(Long eventId) {
         return eventRepository.findById(eventId)
-            .orElseThrow(() -> new NotFoundException(String.format("Событие с id = {} не найдено", eventId)));
+            .orElseThrow(() -> new NotFoundException(String.format("Событие с id = %s не найдено", eventId)));
     }
 
     private User userValidation(Long userId) {
         return userRepository.findById(userId)
-            .orElseThrow(() -> new NotFoundException(String.format("Пользователь с id = {} не найден", userId)));
+            .orElseThrow(() -> new NotFoundException(String.format("Пользователь с id = %s не найден", userId)));
     }
 
     private Comment commentValidation(Long commentId) {
         return repository.findById(commentId)
-            .orElseThrow(() -> new NotFoundException(String.format("Комментарий с id = {} не найден", commentId)));
+            .orElseThrow(() -> new NotFoundException(String.format("Комментарий с id = %s не найден", commentId)));
     }
 
 }
