@@ -153,8 +153,9 @@ public class AdminController {
     }
 
     @DeleteMapping("/comments/{eventId}")
-    public void deleteCommentsByEventId(@PathVariable Long eventId) {
+    public ResponseEntity<Void> deleteCommentsByEventId(@PathVariable Long eventId) {
         log.info("Получен запрос на удаление комментариев для события с id = {}", eventId);
         commentService.deleteCommentsByEventId(eventId);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 }

@@ -113,7 +113,7 @@ public class CommentServiceImpl implements CommentService {
     @Override
     @Transactional
     public CommentDto updateComment(Long commentId, Long userId, CommentDto commentDto) {
-        if (userId == commentDto.getAuthor().getId()) {
+        if (userId.equals(commentDto.getAuthor().getId())) {
             eventValidation(commentDto.getEvent().getId());
             if (commentDto.getText().isEmpty()) {
                 throw new BadRequestException("Текст комментария не может быть пустым");
