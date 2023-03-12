@@ -29,7 +29,7 @@ public class Event {
     Category category;
     @Column
     Long confirmedRequests;
-    @Column(name = "createdOn")
+    @Column(name = "created_on")
     @CreationTimestamp
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss", iso = DateTimeFormat.ISO.DATE_TIME)
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
@@ -53,7 +53,7 @@ public class Event {
     Boolean paid;
     @Column
     Long participantLimit;
-    @Column(name = "publishedOn")
+    @Column(name = "published_on")
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss", iso = DateTimeFormat.ISO.DATE_TIME)
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
     LocalDateTime publishedOn;

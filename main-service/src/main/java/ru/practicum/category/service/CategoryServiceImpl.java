@@ -39,7 +39,7 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     public CategoryDtoFull findById(Long id) {
         return CategoryMapper.toCategoryDtoFull(repository.findById(id)
-            .orElseThrow(() -> new NotFoundException(String.format("Не найдена категория с id = {}", id))));
+            .orElseThrow(() -> new NotFoundException(String.format("Не найдена категория с id = %s", id))));
     }
 
     @Override
@@ -47,11 +47,11 @@ public class CategoryServiceImpl implements CategoryService {
     public void deleteById(Long id) {
         repository.findById(id)
             .orElseThrow(
-                () -> new NotFoundException(String.format("Не найдена категория с id = {}, удалить нельзя", id)));
+                () -> new NotFoundException(String.format("Не найдена категория с id = %s, удалить нельзя", id)));
         if (eventRepository.findAllByCategoryId(id).size() == 0) {
             repository.deleteById(id);
         } else {
-            throw new ConflictException(String.format("Категория с id = {} не пустая", id));
+            throw new ConflictException(String.format("Категория с id = %s не пустая", id));
         }
 
     }
@@ -60,7 +60,7 @@ public class CategoryServiceImpl implements CategoryService {
     @Transactional
     public CategoryDtoFull updateById(CategoryDtoNew categoryDtoNew, Long id) {
         Category category = repository.findById(id)
-            .orElseThrow(() -> new NotFoundException("Невозможно обновить - категория не найдена"));
+            .orElseThrow(() -> new NotFoundException(String.format("Категория с id = %s не найдена", id)));
         repository.findByNameOrderByName()
             .stream()
             .filter(name -> name.equals(categoryDtoNew.getName())).forEachOrdered(name -> {

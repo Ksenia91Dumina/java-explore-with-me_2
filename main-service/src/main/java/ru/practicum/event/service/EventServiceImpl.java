@@ -13,7 +13,6 @@ import ru.practicum.event.dto.*;
 import ru.practicum.event.mapper.EventMapper;
 import ru.practicum.event.model.Event;
 import ru.practicum.event.model.EventState;
-import ru.practicum.event.model.StateAction;
 import ru.practicum.event.repository.EventRepository;
 import ru.practicum.exception.BadRequestException;
 import ru.practicum.exception.ConflictException;
@@ -30,8 +29,7 @@ import java.util.List;
 
 import static java.util.stream.Collectors.toList;
 import static ru.practicum.event.model.EventState.*;
-import static ru.practicum.event.model.StateAction.CANCEL_REVIEW;
-import static ru.practicum.event.model.StateAction.SEND_TO_REVIEW;
+import static ru.practicum.event.model.StateAction.*;
 
 @Service
 @RequiredArgsConstructor
@@ -59,7 +57,7 @@ public class EventServiceImpl implements EventService {
         }
         Event event = EventMapper.toEvent(eventDtoNew);
         Category category = categoryRepository.findById(eventDtoNew.getCategory())
-            .orElseThrow(() -> new NotFoundException(String.format("Категория с id = {} не найдена",
+            .orElseThrow(() -> new NotFoundException(String.format("Категория с id = %s не найдена",
                 eventDtoNew.getCategory())));
         event.setInitiator(user);
         event.setCategory(category);
@@ -72,7 +70,7 @@ public class EventServiceImpl implements EventService {
     public EventDtoFull findEventByIdForInitiator(Long userId, Long eventId) {
         initiatorValidation(userId);
         Event event = eventRepository.findByIdAndInitiatorId(eventId, userId)
-            .orElseThrow(() -> new NotFoundException(String.format("Событие с id = {} не найдено", eventId)));
+            .orElseThrow(() -> new NotFoundException(String.format("Событие с id = %s не найдено", eventId)));
         return EventMapper.toEventDtoFull(event);
     }
 
@@ -90,7 +88,7 @@ public class EventServiceImpl implements EventService {
                                                    Long eventId) {
         initiatorValidation(userId);
         eventRepository.findById(eventId)
-            .orElseThrow(() -> new NotFoundException(String.format("Событие с id = {} не найдено", eventId)));
+            .orElseThrow(() -> new NotFoundException(String.format("Событие с id = %s не найдено", eventId)));
         if (eventDtoUpdateByUser.getEventDate() != null) {
             LocalDateTime dateTime = EventMapper.toLocalDateTime(eventDtoUpdateByUser.getEventDate());
             if (dateTime.isBefore(LocalDateTime.now().plusHours(2))) {
@@ -104,9 +102,9 @@ public class EventServiceImpl implements EventService {
         if ((!PENDING.equals(event.getState())) && (!CANCELED.equals(event.getState()))) {
             throw new ConflictException("Могут быть изменены только события со статусом Pending или Canceled");
         }
-        if ((CANCEL_REVIEW.toString()).equals(eventDtoUpdateByUser.getStateAction())) {
+        if (CANCEL_REVIEW.equals(eventDtoUpdateByUser.getStateAction())) {
             event.setState(CANCELED);
-        } else if ((SEND_TO_REVIEW.toString()).equals(eventDtoUpdateByUser.getStateAction())) {
+        } else if (SEND_TO_REVIEW.equals(eventDtoUpdateByUser.getStateAction())) {
             event.setState(PENDING);
         } else {
             throw new ConflictException("Поле stateAction должно содержать значение CANCEL_REVIEW или SEND_TO_REVIEW");
@@ -171,9 +169,9 @@ public class EventServiceImpl implements EventService {
         }
         if (states == null) {
             states = new ArrayList<>();
-            states.add(EventState.PENDING);
-            states.add(EventState.CANCELED);
-            states.add(EventState.PUBLISHED);
+            states.add(PENDING);
+            states.add(CANCELED);
+            states.add(PUBLISHED);
         }
         List<Event> events = new ArrayList<>();
         if (categories != null) {
@@ -199,7 +197,7 @@ public class EventServiceImpl implements EventService {
     @Transactional
     public EventDtoFull updateEventByIdByAdmin(EventDtoUpdateByAdmin eventDtoUpdateByAdmin, Long eventId) {
         Event event = eventRepository.findById(eventId)
-            .orElseThrow(() -> new NotFoundException(String.format("Событие с id = {} не найдено", eventId)));
+            .orElseThrow(() -> new NotFoundException(String.format("Событие с id = %s не найдено", eventId)));
         if (eventDtoUpdateByAdmin.getEventDate() != null) {
             LocalDateTime eventDate = EventMapper.toLocalDateTime(eventDtoUpdateByAdmin.getEventDate());
             LocalDateTime publishedOn = event.getPublishedOn();
@@ -207,16 +205,16 @@ public class EventServiceImpl implements EventService {
                 throw new ConflictException("Дата события должна быть не ранее чем за час от даты публикации");
             }
         }
-        if ((StateAction.PUBLISH_EVENT.toString()).equals(eventDtoUpdateByAdmin.getStateAction())) {
+        if (PUBLISH_EVENT.equals(eventDtoUpdateByAdmin.getStateAction())) {
             if (!PENDING.equals(event.getState())) {
-                throw new ConflictException(String.format("Невозможно опубликовать событие - неверно указан статус {}",
+                throw new ConflictException(String.format("Невозможно опубликовать событие - неверно указан статус %s",
                     event.getState()));
             }
             event.setState(PUBLISHED);
         }
-        if ((StateAction.REJECT_EVENT.toString()).equals(eventDtoUpdateByAdmin.getStateAction())) {
+        if (REJECT_EVENT.equals(eventDtoUpdateByAdmin.getStateAction())) {
             if (PUBLISHED.equals(event.getState())) {
-                throw new ConflictException(String.format("Невозможно опубликовать событие - неверно указан статус {}",
+                throw new ConflictException(String.format("Невозможно опубликовать событие - неверно указан статус %s",
                     event.getState()));
             }
             event.setState(CANCELED);
@@ -281,9 +279,9 @@ public class EventServiceImpl implements EventService {
     public EventDtoFull getEventById(Long id, HttpServletRequest request) {
         statsClient.save(StatsEndpointMapper.toEndpointHit(request));
         Event event = eventRepository.findById(id)
-            .orElseThrow(() -> new NotFoundException(String.format("Событие с id = {} не найдено", id)));
-        if (!event.getState().equals(PUBLISHED)) {
-            throw new ConflictException(String.format("Событие с id = {} не опубликовано", id));
+            .orElseThrow(() -> new NotFoundException(String.format("Событие с id = %s не найдено", id)));
+        if (!PUBLISHED.equals(event.getState())) {
+            throw new ConflictException(String.format("Событие с id = %s не опубликовано", id));
         }
         event.setViews(event.getViews() + 1);
         return EventMapper.toEventDtoFull(eventRepository.save(event));
@@ -291,18 +289,18 @@ public class EventServiceImpl implements EventService {
 
     private User initiatorValidation(Long userId) {
         return userRepository.findById(userId)
-            .orElseThrow(() -> new NotFoundException(String.format("Пользователь с id ={} не найден", userId)));
+            .orElseThrow(() -> new NotFoundException(String.format("Пользователь с id =%s не найден", userId)));
     }
 
     private Category categoryValidation(Long catId) {
         return categoryRepository.findById(catId)
-            .orElseThrow(() -> new NotFoundException(String.format("Категория с id ={} не найден", catId)));
+            .orElseThrow(() -> new NotFoundException(String.format("Категория с id =%s не найден", catId)));
     }
 
     private Event getByIdAndInitiatorId(Long eventId, Long userId) {
         return eventRepository.findByIdAndInitiatorId(eventId, userId)
             .orElseThrow(
-                () -> new NotFoundException(String.format("Пользователь с id = {} или событие с id = {} не найдены",
+                () -> new NotFoundException(String.format("Пользователь с id = %s или событие с id = {%s не найдены",
                     userId, eventId)));
     }
 }

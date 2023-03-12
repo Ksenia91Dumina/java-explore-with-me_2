@@ -2,8 +2,8 @@ package ru.practicum.user.mapper;
 
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
-import ru.practicum.user.dto.UserDtoNew;
 import ru.practicum.user.dto.UserDto;
+import ru.practicum.user.dto.UserDtoNew;
 import ru.practicum.user.dto.UserDtoShort;
 import ru.practicum.user.model.User;
 

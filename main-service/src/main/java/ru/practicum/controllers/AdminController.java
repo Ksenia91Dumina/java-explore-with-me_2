@@ -10,6 +10,8 @@ import org.springframework.web.bind.annotation.*;
 import ru.practicum.category.dto.CategoryDtoFull;
 import ru.practicum.category.dto.CategoryDtoNew;
 import ru.practicum.category.service.CategoryService;
+import ru.practicum.comment.dto.CommentDto;
+import ru.practicum.comment.service.CommentService;
 import ru.practicum.compilation.dto.CompilationDtoFull;
 import ru.practicum.compilation.dto.CompilationDtoNew;
 import ru.practicum.compilation.dto.CompilationDtoUpdated;
@@ -42,6 +44,8 @@ public class AdminController {
     private final CompilationService compilationService;
 
     private final EventService eventService;
+
+    private final CommentService commentService;
 
 
     @PostMapping("/users")
@@ -133,5 +137,25 @@ public class AdminController {
         @PathVariable Long compId) {
         log.info("Получен запрос на обновление подборки событий с id {}", compId);
         return ResponseEntity.ok(compilationService.updateCompilationById(compilationDtoUpdate, compId));
+    }
+
+    @GetMapping("/comments/{commentId}")
+    public ResponseEntity<CommentDto> getCommentById(@PathVariable Long commentId) {
+        log.info("Запрос на получение информации о комментарии с id = {}", commentId);
+        return ResponseEntity.ok(commentService.getCommentById(commentId));
+    }
+
+    @DeleteMapping("/comments/{commentId}")
+    public ResponseEntity<Void> deleteCommentById(@PathVariable Long commentId) {
+        log.info("Получен запрос на удаление комментария с id = {}", commentId);
+        commentService.deleteCommentById(commentId);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+
+    @DeleteMapping("/comments/{eventId}")
+    public ResponseEntity<Void> deleteCommentsByEventId(@PathVariable Long eventId) {
+        log.info("Получен запрос на удаление комментариев для события с id = {}", eventId);
+        commentService.deleteCommentsByEventId(eventId);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 }

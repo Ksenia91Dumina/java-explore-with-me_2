@@ -4,7 +4,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.event.model.Event;
-import ru.practicum.event.model.EventState;
 import ru.practicum.event.repository.EventRepository;
 import ru.practicum.exception.ConflictException;
 import ru.practicum.exception.NotFoundException;
@@ -13,7 +12,6 @@ import ru.practicum.request.dto.RequestDtoUpdateStatus;
 import ru.practicum.request.dto.RequestDtoUpdated;
 import ru.practicum.request.mapper.RequestMapper;
 import ru.practicum.request.model.Request;
-import ru.practicum.request.model.RequestState;
 import ru.practicum.request.repository.RequestRepository;
 import ru.practicum.user.model.User;
 import ru.practicum.user.repository.UserRepository;
@@ -21,8 +19,8 @@ import ru.practicum.user.repository.UserRepository;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static ru.practicum.request.model.RequestState.CONFIRMED;
-import static ru.practicum.request.model.RequestState.REJECTED;
+import static ru.practicum.event.model.EventState.PUBLISHED;
+import static ru.practicum.request.model.RequestState.*;
 
 
 @Service
@@ -38,17 +36,17 @@ public class RequestServiceImpl implements RequestService {
     @Transactional
     public RequestDto createRequest(Long userId, Long eventId) {
         User requester = userRepository.findById(userId)
-            .orElseThrow(() -> new NotFoundException(String.format("Пользователя с id = {} не существует", userId)));
+            .orElseThrow(() -> new NotFoundException(String.format("Пользователя с id = %s не существует", userId)));
         Event event = eventRepository.findById(eventId)
-            .orElseThrow(() -> new NotFoundException(String.format("События с id = {} не существует", eventId)));
+            .orElseThrow(() -> new NotFoundException(String.format("События с id = %s не существует", eventId)));
         if (repository.findByRequesterIdAndEventId(userId, eventId).isPresent()) {
-            throw new ConflictException(String.format("Запрос на событие с id = {} и " +
-                "пользователем с id = {} уже существует", eventId, userId));
+            throw new ConflictException(String.format("Запрос на событие с id = %s и " +
+                "пользователем с id = %s уже существует", eventId, userId));
         }
         if (event.getInitiator().getId().equals(userId)) {
             throw new ConflictException("Организатор не может быть участником события");
         }
-        if (!(EventState.PUBLISHED).equals(event.getState())) {
+        if (!PUBLISHED.equals(event.getState())) {
             throw new ConflictException("Событие еще не опубликовано");
         }
         if (event.getParticipantLimit().equals(event.getConfirmedRequests())) {
@@ -64,16 +62,16 @@ public class RequestServiceImpl implements RequestService {
     @Override
     public List<RequestDto> findRequestByRequesterId(Long userId) {
         userRepository.findById(userId)
-            .orElseThrow(() -> new NotFoundException(String.format("Пользователя с id = {} не существует", userId)));
+            .orElseThrow(() -> new NotFoundException(String.format("Пользователя с id = %s не существует", userId)));
         return RequestMapper.toRequestDtoList(repository.findAllByRequesterId(userId));
     }
 
     @Override
     public List<RequestDto> findRequestsForEventInitiator(Long initiatorId, Long eventId) {
         eventRepository.findById(eventId).orElseThrow(() -> new NotFoundException(
-            String.format("События с id = {} не существует", eventId)));
+            String.format("События с id = %s не существует", eventId)));
         userRepository.findById(initiatorId).orElseThrow(() -> new NotFoundException(
-            String.format("Пользователя с id = {} не существует", initiatorId)));
+            String.format("Пользователя с id = %s не существует", initiatorId)));
         return RequestMapper.toRequestDtoList(repository.findAllByEventId(eventId));
     }
 
@@ -81,11 +79,11 @@ public class RequestServiceImpl implements RequestService {
     @Transactional
     public RequestDto cancelRequest(Long userId, Long requestId) {
         Request request = repository.findByIdAndRequesterId(requestId, userId)
-            .orElseThrow(() -> new NotFoundException(String.format("Запроса с id = {} не существует", requestId)));
-        if ((RequestState.CANCELED).equals(request.getStatus())) {
+            .orElseThrow(() -> new NotFoundException(String.format("Запроса с id = %s не существует", requestId)));
+        if (CANCELED.equals(request.getStatus())) {
             throw new ConflictException("Данный запрос уже отменен");
         }
-        request.setStatus(RequestState.CANCELED);
+        request.setStatus(CANCELED);
         return RequestMapper.toRequestDto(repository.save(request));
     }
 
@@ -95,9 +93,9 @@ public class RequestServiceImpl implements RequestService {
         Long userId, Long eventId, RequestDtoUpdateStatus requestDtoStatusUpdate) {
 
         Event event = eventRepository.findById(eventId).orElseThrow(() -> new NotFoundException(
-            String.format("События с id = {} не существует", eventId)));
-        User user = userRepository.findById(userId).orElseThrow(() -> new NotFoundException(
-            String.format("Пользователя с id = {} не существует", userId)));
+            String.format("События с id = %s не существует", eventId)));
+        userRepository.findById(userId).orElseThrow(() -> new NotFoundException(
+            String.format("Пользователя с id = %s не существует", userId)));
 
         List<RequestDto> confirmedRequests = List.of();
         List<RequestDto> rejectedRequests = List.of();
@@ -109,7 +107,7 @@ public class RequestServiceImpl implements RequestService {
 
         String status = requestDtoStatusUpdate.getStatus();
 
-        if (status.equals(REJECTED.toString())) {
+        if ((REJECTED.toString()).equals(status)) {
             rejectedRequests = requests.stream()
                 .peek(request -> request.setStatus(REJECTED))
                 .map(repository::save)
@@ -127,7 +125,7 @@ public class RequestServiceImpl implements RequestService {
             throw new ConflictException(String.format("Количество участников превышено", eventId));
         }
 
-        if (status.equals(CONFIRMED.toString())) {
+        if ((CONFIRMED.toString()).equals(status)) {
             if (participantLimit.equals(0L) ||
                 (potentialParticipants <= availableParticipants && !event.getRequestModeration())) {
                 confirmedRequests = requests.stream()
@@ -158,8 +156,8 @@ public class RequestServiceImpl implements RequestService {
 
     private Request getRequestById(Long requestId) {
         Request request = repository.findById(requestId)
-            .orElseThrow(() -> new NotFoundException(String.format("Запрос с id = {} не найден", requestId)));
-        if (!(RequestState.PENDING).equals(request.getStatus())) {
+            .orElseThrow(() -> new NotFoundException(String.format("Запрос с id = %s не найден", requestId)));
+        if (!PENDING.equals(request.getStatus())) {
             throw new ConflictException("Статус запроса должен быть PENDING");
         }
         return request;
